@@ -10,35 +10,193 @@
   <meta name="description" content="Suivi des performances en pétanque">
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icons/icon-192.png">
-  <link rel="stylesheet" href="styles.css">
   <title>Boules Tracker</title>
+  <style>
+:root{--bg:#0f0f1a;--bg2:#1a1a2e;--bg3:#252540;--border:rgba(255,255,255,0.1);--border2:rgba(255,255,255,0.18);--text:#f0f0f8;--text2:#9898b8;--text3:#6060a0;--amber:#d4a574;--amber-bg:rgba(212,165,116,0.15);--amber-border:rgba(212,165,116,0.4);--blue:#7a9cc6;--blue-bg:rgba(122,156,198,0.12);--blue-border:rgba(122,156,198,0.4);--green:#7da87d;--green-bg:rgba(125,168,125,0.12);--green-border:rgba(125,168,125,0.4);--red:#c67a7a;--red-bg:rgba(198,122,122,0.12);--red-border:rgba(198,122,122,0.4);--purple:#a694c6;--purple-bg:rgba(166,148,198,0.12);--purple-border:rgba(166,148,198,0.4);--orange:#c69b7a;--orange-bg:rgba(198,155,122,0.12);--orange-border:rgba(198,155,122,0.4);--radius:12px;--radius-sm:8px}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;overflow:hidden}
+body{display:flex;flex-direction:column}
+.header{background:var(--bg2);border-bottom:1px solid var(--border);padding:14px 16px 12px;flex-shrink:0;display:flex;align-items:center;gap:10px}
+.header-back{background:var(--bg3);border:1px solid var(--border);color:var(--text2);padding:6px 12px;border-radius:6px;font-size:12px;cursor:pointer}
+.header-title{font-size:17px;font-weight:700;letter-spacing:-0.3px;flex:1}
+.header-count{background:var(--bg3);border:1px solid var(--border);border-radius:20px;padding:4px 12px;font-size:12px;color:var(--text2)}
+.tabs{display:flex;background:var(--bg2);border-bottom:1px solid var(--border);flex-shrink:0}
+.tab{flex:1;padding:12px 4px;font-size:11px;font-weight:500;color:var(--text3);text-align:center;cursor:pointer;border-bottom:2px solid transparent;transition:all .15s}
+@media(min-width:360px){.tab{font-size:13px}}
+.tab.active{color:var(--amber);border-bottom-color:var(--amber)}
+.content{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px;padding-bottom:calc(16px + env(safe-area-inset-bottom))}
+.step-block{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:12px}
+.step-block.step-hidden{display:none}
+.step-lbl{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px}
+.btns{display:flex;gap:8px;flex-wrap:wrap}
+.btn{flex:1;min-width:100px;padding:16px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--bg3);color:var(--text2);font-size:14px;font-weight:500;cursor:pointer;text-align:center;line-height:1.3;transition:all .12s;user-select:none}
+.btn:active{transform:scale(0.96)}
+.btn.sel-tir{background:var(--amber-bg);border-color:var(--amber-border);color:var(--amber)}
+.btn.sel-point{background:var(--blue-bg);border-color:var(--blue-border);color:var(--blue)}
+.btn.sel-ok{background:var(--green-bg);border-color:var(--green-border);color:var(--green)}
+.btn.sel-bad{background:var(--red-bg);border-color:var(--red-border);color:var(--red)}
+.btn.sel-mid{background:var(--orange-bg);border-color:var(--orange-border);color:var(--orange)}
+.btn.sel-tech{background:var(--purple-bg);border-color:var(--purple-border);color:var(--purple)}
+.confirm-btn{width:100%;padding:16px;border-radius:var(--radius);border:2px solid var(--green-border);background:var(--green-bg);color:var(--green);font-size:16px;font-weight:600;cursor:pointer;margin-top:4px;transition:all .12s}
+.confirm-btn.dim{opacity:0.3;pointer-events:none}
+.flash{position:fixed;top:20px;left:50%;transform:translateX(-50%);padding:10px 24px;border-radius:24px;font-size:13px;font-weight:600;color:#fff;opacity:0;pointer-events:none;z-index:999;transition:opacity .25s;max-width:90vw;text-align:center}
+.flash.show{opacity:1}
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:14px}
+.stat-lbl{font-size:11px;color:var(--text3);margin-bottom:6px}
+.stat-val{font-size:26px;font-weight:700;color:var(--text)}
+.stat-sub{font-size:11px;color:var(--text3);margin-top:3px}
+.sec-title{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin:18px 0 10px}
+.prog-item{margin-bottom:10px}
+.prog-row{display:flex;justify-content:space-between;font-size:12px;color:var(--text2);margin-bottom:5px}
+.prog-track{height:5px;border-radius:3px;background:var(--bg3);overflow:hidden}
+.prog-fill{height:100%;border-radius:3px;transition:width .5s cubic-bezier(.4,0,.2,1)}
+.result-block{border:1px solid var(--border);border-radius:var(--radius);margin-bottom:10px;overflow:hidden}
+.result-header{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:var(--bg2);cursor:pointer;user-select:none}
+.result-left{display:flex;align-items:center;gap:8px}
+.rbadge{font-size:11px;font-weight:600;padding:4px 10px;border-radius:6px}
+.rb-ok{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border)}
+.rb-mid{background:var(--orange-bg);color:var(--orange);border:1px solid var(--orange-border)}
+.rb-ko{background:var(--red-bg);color:var(--red);border:1px solid var(--red-border)}
+.rcount{font-size:12px;color:var(--text3)}
+.chevron{font-size:12px;color:var(--text3);transition:transform .2s}
+.collapsed .chevron{transform:rotate(-90deg)}
+.tech-list{padding:12px 14px;background:var(--bg);border-top:1px solid var(--border)}
+.collapsed .tech-list{display:none}
+.tech-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.tech-name{font-size:12px;color:var(--text2);width:90px;flex-shrink:0}
+.tech-bar-wrap{flex:1;height:5px;background:var(--bg3);border-radius:3px;overflow:hidden}
+.tech-bar-fill{height:100%;border-radius:3px;transition:width .5s}
+.tech-pct{font-size:12px;color:var(--text2);min-width:34px;text-align:right}
+.tech-n{font-size:11px;color:var(--text3);min-width:28px;text-align:right}
+.empty-note{font-size:12px;color:var(--text3);font-style:italic;padding:2px 0}
+.badge{font-size:11px;font-weight:600;padding:4px 9px;border-radius:6px}
+.b-tir{background:var(--amber-bg);color:var(--amber)}
+.b-point{background:var(--blue-bg);color:var(--blue)}
+.b-ok{background:var(--green-bg);color:var(--green)}
+.b-ko{background:var(--red-bg);color:var(--red)}
+.b-mid{background:var(--orange-bg);color:var(--orange)}
+.b-tech{background:var(--purple-bg);color:var(--purple)}
+.reset-btn,.btn-secondary{width:100%;padding:12px;border:1px solid var(--border2);border-radius:var(--radius-sm);background:transparent;color:var(--text3);font-size:13px;cursor:pointer;margin-top:12px}
+.btn-primary{width:100%;padding:14px;border-radius:var(--radius);border:2px solid var(--green-border);background:var(--green-bg);color:var(--green);font-size:15px;font-weight:600;cursor:pointer;margin-top:8px}
+.btn-danger{font-size:11px;padding:4px 8px;border-radius:6px;border:1px solid var(--red-border);background:var(--red-bg);color:var(--red);cursor:pointer}
+.no-data{text-align:center;color:var(--text3);font-size:13px;padding:32px 0;font-style:italic}
+.filter-row{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.filter-select{flex:1;min-width:120px;padding:8px 12px;border:1px solid var(--border);background:var(--bg3);color:var(--text2);border-radius:6px;font-size:12px;cursor:pointer}
+.modal{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);display:none;align-items:center;justify-content:center;z-index:1000;padding:16px}
+.modal.show{display:flex}
+.modal-content{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:20px;width:100%;max-width:400px;max-height:85vh;overflow-y:auto}
+.modal-title{font-size:16px;font-weight:700;margin-bottom:16px}
+.modal-input{width:100%;padding:10px;border:1px solid var(--border);background:var(--bg3);color:var(--text);border-radius:8px;margin-bottom:10px;font-size:14px}
+.modal-actions{display:flex;gap:10px;margin-top:16px}
+.modal-actions button{flex:1;padding:12px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600}
+.modal-ok{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border)}
+.modal-cancel{background:var(--bg3);color:var(--text3);border:1px solid var(--border)}
+.party-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:12px;cursor:pointer;transition:transform .1s}
+.party-card:active{transform:scale(0.99)}
+.party-card-title{font-weight:700;font-size:15px;margin-bottom:6px}
+.party-card-meta{font-size:12px;color:var(--text3)}
+.party-card-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:8px}
+.j-chip-wrap{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.j-chip{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;border:2px solid transparent;cursor:pointer;flex-shrink:0}
+.j-chip.selected{border-color:var(--amber);box-shadow:0 0 0 2px var(--amber-bg)}
+.mene-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;padding:10px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius)}
+.mene-bar strong{color:var(--amber)}
+.search-input{width:100%;padding:10px 12px;border:1px solid var(--border);background:var(--bg3);color:var(--text);border-radius:8px;margin-bottom:12px;font-size:14px}
+.player-item{display:flex;align-items:center;gap:12px;padding:12px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:8px}
+.player-av{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0}
+.player-info{flex:1;min-width:0}
+.player-name{font-weight:600;font-size:14px}
+.player-lic{font-size:11px;color:var(--text3)}
+.player-actions{display:flex;gap:6px}
+.player-actions button{padding:6px 10px;font-size:11px;border-radius:6px;border:1px solid var(--border);background:var(--bg3);color:var(--text2);cursor:pointer}
+.hist-partie{border:1px solid var(--border);border-radius:var(--radius);margin-bottom:10px;overflow:hidden}
+.hist-head{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:var(--bg2);cursor:pointer;gap:8px}
+.hist-head-left{flex:1;min-width:0}
+.hist-title{font-weight:600;font-size:14px}
+.hist-sub{font-size:11px;color:var(--text3);margin-top:2px}
+.hist-body{display:none;padding:8px 12px;background:var(--bg);border-top:1px solid var(--border)}
+.hist-partie.open .hist-body{display:block}
+.hist-mene{margin-bottom:8px;padding:8px;background:var(--bg2);border-radius:8px;border:1px solid var(--border)}
+.hist-mene-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;font-size:12px;font-weight:600;color:var(--text2)}
+.hist-boule{display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px}
+.hist-boule:last-child{border-bottom:none}
+.chk-row{display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--border);border-radius:8px;margin-bottom:8px;cursor:pointer;background:var(--bg3)}
+.chk-row input{accent-color:var(--amber)}
+.view-hidden{display:none!important}
+  </style>
 </head>
 <body>
 
-<div class="header">
+<div class="header" id="hdr-main">
   <span class="header-title">Boules Tracker</span>
-  <span class="header-count" id="header-count">0 boules</span>
+  <span class="header-count" id="header-count">0</span>
 </div>
-
-<div class="session-bar">
-  <span class="session-label">Session:</span>
-  <div class="session-info">
-    <span class="session-badge" id="session-type-badge">Entraînement</span>
-    <span class="session-name" id="session-name-display">—</span>
+<div class="header view-hidden" id="hdr-party">
+  <button type="button" class="header-back" onclick="leavePartie()">← Retour</button>
+  <div style="flex:1;min-width:0">
+    <div class="header-title" style="font-size:15px" id="party-title-h">—</div>
+    <div style="font-size:12px;color:var(--text3)" id="party-sub-h"></div>
   </div>
-  <button class="session-btn" type="button" onclick="openSessionModal()">Changer</button>
+  <span class="header-count" id="party-ball-count">0</span>
 </div>
 
-<div class="tabs">
-  <div class="tab active" onclick="showTab('saisie')">Saisie</div>
-  <div class="tab" onclick="showTab('stats-global')">Stats</div>
-  <div class="tab" onclick="showTab('stats-detail')">Par Partie</div>
-  <div class="tab" onclick="showTab('log')">Historique</div>
+<div class="tabs" id="main-tabs">
+  <div class="tab active" data-tab="home" onclick="setMainTab('home')">Accueil</div>
+  <div class="tab" data-tab="joueurs" onclick="setMainTab('joueurs')">Joueurs</div>
+  <div class="tab" data-tab="stats" onclick="setMainTab('stats')">Stats</div>
+  <div class="tab" data-tab="histo" onclick="setMainTab('histo')">Historique</div>
 </div>
 
 <div class="content" id="content">
 
-  <div id="tab-saisie">
+  <div id="view-home">
+    <button type="button" class="btn-primary" onclick="openNewPartieModal()">+ Nouvelle partie</button>
+    <div class="sec-title" style="margin-top:20px">Parties</div>
+    <div id="party-list"></div>
+    <p class="no-data" id="party-list-empty" style="display:none">Aucune partie. Crée-en une pour commencer.</p>
+  </div>
+
+  <div id="view-joueurs" class="view-hidden">
+    <input type="search" class="search-input" id="joueur-search" placeholder="Rechercher un joueur…" oninput="renderJoueurs()">
+    <button type="button" class="btn-primary" onclick="openJoueurModal(null)">+ Ajouter un joueur</button>
+    <div class="sec-title" style="margin-top:16px">Joueurs enregistrés</div>
+    <div id="joueur-list"></div>
+  </div>
+
+  <div id="view-stats" class="view-hidden">
+    <div class="filter-row">
+      <select class="filter-select" id="stats-scope" onchange="onStatsScopeChange()">
+        <option value="global">Vue globale</option>
+        <option value="joueur">Par joueur</option>
+        <option value="partie">Par partie</option>
+      </select>
+    </div>
+    <div class="filter-row view-hidden" id="stats-row-joueur">
+      <select class="filter-select" id="stats-joueur-sel" onchange="renderStats()"></select>
+    </div>
+    <div class="filter-row view-hidden" id="stats-row-partie">
+      <select class="filter-select" id="stats-partie-sel" onchange="renderStats()"></select>
+    </div>
+    <div id="stats-panel"></div>
+    <div id="stats-per-joueur-wrap" class="view-hidden"></div>
+    <button type="button" class="reset-btn" onclick="resetAllData()">Réinitialiser toutes les données</button>
+  </div>
+
+  <div id="view-histo" class="view-hidden">
+    <div id="histo-root"></div>
+    <p class="no-data view-hidden" id="histo-empty">Aucune donnée.</p>
+  </div>
+
+  <div id="view-party" class="view-hidden">
+    <div class="mene-bar">
+      <span>Mène en cours : <strong id="mene-num-d">1</strong></span>
+      <button type="button" class="btn-secondary" style="width:auto;margin:0;padding:8px 14px" onclick="nextMene()">Mène suivante</button>
+    </div>
+    <div class="step-block">
+      <div class="step-lbl">Joueur actif</div>
+      <div class="j-chip-wrap" id="j-chips"></div>
+    </div>
     <div class="step-block" id="blk-type">
       <div class="step-lbl">1 · Type de boule</div>
       <div class="btns">
@@ -46,7 +204,6 @@
         <div class="btn" id="btn-point" onclick="pick('type','point')">Pointée</div>
       </div>
     </div>
-
     <div class="step-block step-hidden" id="blk-contact">
       <div class="step-lbl">2 · Contact</div>
       <div class="btns">
@@ -54,7 +211,6 @@
         <div class="btn" id="btn-rate" onclick="pick('contact','rate')">Ratée</div>
       </div>
     </div>
-
     <div class="step-block step-hidden" id="blk-effet">
       <div class="step-lbl">3 · Résultat du contact</div>
       <div class="btns">
@@ -63,7 +219,6 @@
         <div class="btn" id="btn-carreau" onclick="pick('effet','carreau')">Carreau magueul</div>
       </div>
     </div>
-
     <div class="step-block step-hidden" id="blk-presult">
       <div class="step-lbl">2 · Qualité du pointé</div>
       <div class="btns">
@@ -74,7 +229,6 @@
         <div class="btn" style="min-width:100%" id="btn-mer" onclick="pick('presult','mer')">À la mer</div>
       </div>
     </div>
-
     <div class="step-block step-hidden" id="blk-tech">
       <div class="step-lbl">3 · Technique</div>
       <div class="btns">
@@ -84,85 +238,648 @@
         <div class="btn" id="btn-roulette" onclick="pick('technique','roulette')">Roulette</div>
       </div>
     </div>
-
-    <button class="confirm-btn dim" type="button" id="btn-confirm" onclick="confirmEntry()">Enregistrer la boule</button>
-  </div>
-
-  <div id="tab-stats-global" style="display:none">
-    <div class="filter-row">
-      <select class="filter-select" id="global-filter" onchange="renderStatsGlobal()">
-        <option value="all">Tous les types</option>
-        <option value="training">Entraînements seulement</option>
-        <option value="match">Parties seulement</option>
-      </select>
-    </div>
-
-    <div class="stats-grid">
-      <div class="stat-card"><div class="stat-lbl">Total boules</div><div class="stat-val" id="s-total">0</div></div>
-      <div class="stat-card"><div class="stat-lbl">Carreaux magueuls</div><div class="stat-val" id="s-carreaux">0</div><div class="stat-sub" id="s-carreaux-p">—</div></div>
-      <div class="stat-card"><div class="stat-lbl">Tirs</div><div class="stat-val" id="s-tirs">0</div><div class="stat-sub" id="s-tirs-p">—</div></div>
-      <div class="stat-card"><div class="stat-lbl">Pointés</div><div class="stat-val" id="s-points">0</div><div class="stat-sub" id="s-points-p">—</div></div>
-    </div>
-
-    <div class="sec-title">Résultats des tirs</div>
-    <div class="prog-item"><div class="prog-row"><span>Carreau magueul</span><span id="pt-carreau">0%</span></div><div class="prog-track"><div class="prog-fill" id="pb-carreau" style="background:#7da87d;width:0%"></div></div></div>
-    <div class="prog-item"><div class="prog-row"><span>Palet</span><span id="pt-pale">0%</span></div><div class="prog-track"><div class="prog-fill" id="pb-pale" style="background:#c69b7a;width:0%"></div></div></div>
-    <div class="prog-item"><div class="prog-row"><span>Poussée</span><span id="pt-poussee">0%</span></div><div class="prog-track"><div class="prog-fill" id="pb-poussee" style="background:#7a9cc6;width:0%"></div></div></div>
-    <div class="prog-item"><div class="prog-row"><span>Ratée</span><span id="pt-rate">0%</span></div><div class="prog-track"><div class="prog-fill" id="pb-rate" style="background:#c67a7a;width:0%"></div></div></div>
-
-    <div class="sec-title">Pointés : résultats × techniques</div>
-    <div id="crosstab-global"></div>
-
-    <button class="reset-btn" type="button" onclick="resetAll()">Réinitialiser toutes les données</button>
-  </div>
-
-  <div id="tab-stats-detail" style="display:none">
-    <div class="filter-row">
-      <select class="filter-select" id="match-selector" onchange="renderStatsDetail()">
-        <option value="">— Sélectionner une partie —</option>
-      </select>
-    </div>
-    <div id="stats-detail-content" class="no-data">Aucune partie sélectionnée</div>
-  </div>
-
-  <div id="tab-log" style="display:none">
-    <div id="log-list"></div>
-    <button class="reset-btn" type="button" onclick="resetAll()">Réinitialiser toutes les données</button>
+    <button type="button" class="confirm-btn dim" id="btn-confirm" onclick="confirmEntry()">Enregistrer la boule</button>
   </div>
 
 </div>
 
 <div class="flash" id="flash"></div>
 
-<div class="modal" id="session-modal">
+<div class="modal" id="modal-partie">
   <div class="modal-content">
-    <div class="modal-title">Nouvelle Session</div>
-
-    <div style="margin-bottom:16px;">
-      <div style="font-size:12px;color:var(--text3);margin-bottom:8px;font-weight:500;">Type</div>
-      <div class="modal-btn-group">
-        <button type="button" class="modal-btn selected" id="type-training" onclick="selectSessionType('training')">Entraînement</button>
-        <button type="button" class="modal-btn" id="type-match" onclick="selectSessionType('match')">Partie</button>
-      </div>
-    </div>
-
-    <div style="margin-bottom:16px;">
-      <div style="font-size:12px;color:var(--text3);margin-bottom:8px;font-weight:500;">Nom (optionnel)</div>
-      <input type="text" class="modal-input" id="session-name-input" placeholder="Équipe, lieu... (vide = auto)">
-    </div>
-
-    <div id="existing-sessions" style="margin-bottom:16px;">
-      <div style="font-size:12px;color:var(--text3);margin-bottom:8px;font-weight:500;">Sessions existantes</div>
-      <div id="sessions-list"></div>
-    </div>
-
+    <div class="modal-title">Nouvelle partie</div>
+    <label class="step-lbl">Nom (optionnel)</label>
+    <input type="text" class="modal-input" id="new-partie-label" placeholder="Ex. Finale club">
+    <div class="step-lbl" style="margin-bottom:8px">Joueurs participants</div>
+    <div id="new-partie-joueurs"></div>
+    <p class="empty-note" id="new-partie-no-j" style="display:none">Ajoute d’abord des joueurs dans l’onglet Joueurs.</p>
     <div class="modal-actions">
-      <button type="button" class="modal-ok" onclick="createOrSelectSession()">Valider</button>
-      <button type="button" class="modal-cancel" onclick="closeSessionModal()">Annuler</button>
+      <button type="button" class="modal-ok" onclick="createPartie()">Créer</button>
+      <button type="button" class="modal-cancel" onclick="closeModal('modal-partie')">Annuler</button>
     </div>
   </div>
 </div>
 
-<script src="app.js"></script>
+<div class="modal" id="modal-joueur">
+  <div class="modal-content">
+    <div class="modal-title" id="modal-joueur-title">Joueur</div>
+    <input type="text" class="modal-input" id="j-nom" placeholder="Nom *">
+    <input type="text" class="modal-input" id="j-prenom" placeholder="Prénom *">
+    <input type="text" class="modal-input" id="j-lic" placeholder="N° licence (optionnel)">
+    <div class="modal-actions">
+      <button type="button" class="modal-ok" onclick="saveJoueurForm()">Enregistrer</button>
+      <button type="button" class="modal-cancel" onclick="closeModal('modal-joueur')">Annuler</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+var K_J='petanque_joueurs',K_P='petanque_parties',K_MIG='petanque_migrated_legacy';
+var joueurs=[],parties=[],cur={},currentPartieId=null,editingJoueurId=null,mainTab='home';
+var LABELS={tir:'Tir',point:'Pointé',touche:'Touchée',rate:'Ratée',poussee:'Poussée',pale:'Palet',carreau:'Carreau magueul',simple:'Reprise simple',difficile:'Reprise difficile',defendable:'Défendable',nul:'Nul indéfendable',mer:'À la mer',plombe:'Plombée',portee:'Portée',demi:'Demi-portée',roulette:'Roulette'};
+var PRESULTS=['simple','difficile','defendable','nul','mer'];
+var PRESULT_CLS={simple:'rb-ok',difficile:'rb-ok',defendable:'rb-mid',nul:'rb-ko',mer:'rb-ko'};
+var TECHNIQUES=['plombe','portee','demi','roulette'];
+var TECH_COLORS={plombe:'#8f7ef0',portee:'#a898f8',demi:'#c4beff',roulette:'#ddd8ff'};
+var AVATAR_BG=['#3d5a4a','#3d4a6a','#6a5a3d','#5a3d6a','#6a4a4a','#3d6a6a','#6a3d5a','#4a5a6a'];
+var pickMap={type:{ids:['btn-tir','btn-point'],vals:['tir','point'],cls:['sel-tir','sel-point']},contact:{ids:['btn-touche','btn-rate'],vals:['touche','rate'],cls:['sel-ok','sel-bad']},effet:{ids:['btn-poussee','btn-pale','btn-carreau'],vals:['poussee','pale','carreau'],cls:['sel-mid','sel-mid','sel-ok']},presult:{ids:['btn-simple','btn-difficile','btn-defendable','btn-nul','btn-mer'],vals:['simple','difficile','defendable','nul','mer'],cls:['sel-ok','sel-ok','sel-mid','sel-bad','sel-bad']},technique:{ids:['btn-plombe','btn-portee','btn-demi','btn-roulette'],vals:['plombe','portee','demi','roulette'],cls:['sel-tech','sel-tech','sel-tech','sel-tech']}};
+
+function generateId(){return 'u_'+Date.now()+'_'+Math.random().toString(36).substr(2,9);}
+function makeAvatar(prenom,nom){var a=(prenom||'').trim().charAt(0)+(nom||'').trim().charAt(0);return(a||'?').toUpperCase();}
+function joueurColor(id){var h=0;for(var i=0;i<id.length;i++)h+=id.charCodeAt(i);return AVATAR_BG[h%AVATAR_BG.length];}
+
+function loadAll(){
+  try{joueurs=JSON.parse(localStorage.getItem(K_J)||'[]');}catch(e){joueurs=[];}
+  try{parties=JSON.parse(localStorage.getItem(K_P)||'[]');}catch(e){parties=[];}
+  if(!Array.isArray(joueurs))joueurs=[];
+  if(!Array.isArray(parties))parties=[];
+}
+function saveAll(){
+  localStorage.setItem(K_J,JSON.stringify(joueurs));
+  localStorage.setItem(K_P,JSON.stringify(parties));
+  updateHeaderCount();
+}
+
+function migrateLegacy(){
+  if(localStorage.getItem(K_MIG))return;
+  var raw=localStorage.getItem('petanque_entries');
+  if(!raw)return void localStorage.setItem(K_MIG,'1');
+  var entries;try{entries=JSON.parse(raw);}catch(e){localStorage.setItem(K_MIG,'1');return;}
+  if(!entries||!entries.length){localStorage.setItem(K_MIG,'1');return;}
+  var jid=generateId();
+  joueurs.push({id:jid,nom:'Inconnu',prenom:'',licence:'',avatar:'?'});
+  var pid=generateId(),mid=generateId();
+  var boules=entries.map(function(e){
+    return{id:generateId(),joueurId:jid,type:e.type,contact:e.contact,effet:e.effet,presult:e.presult,technique:e.technique,ts:e.ts||Date.now()};
+  });
+  parties.push({id:pid,date:new Date().toISOString().slice(0,10),label:'Parties précédentes',joueurs:[jid],lastJoueurId:jid,menes:[{id:mid,numero:1,boules:boules}]});
+  saveAll();
+  localStorage.removeItem('petanque_entries');
+  localStorage.removeItem('petanque_sessions');
+  localStorage.removeItem('petanque_current_session');
+  localStorage.setItem(K_MIG,'1');
+}
+
+function getJoueur(id){return joueurs.find(function(j){return j.id===id});}
+function getPartie(id){return parties.find(function(p){return p.id===id});}
+function countBoulesPartie(p){var n=0;(p.menes||[]).forEach(function(m){n+=(m.boules||[]).length;});return n;}
+function flattenBoules(filterFn){
+  var out=[];
+  parties.forEach(function(p){
+    (p.menes||[]).forEach(function(m){
+      (m.boules||[]).forEach(function(b){
+        var o={boule:b,mene:m,partie:p};
+        if(!filterFn||filterFn(o))out.push({joueurId:b.joueurId,type:b.type,contact:b.contact,effet:b.effet,presult:b.presult,technique:b.technique,ts:b.ts});
+      });
+    });
+  });
+  return out;
+}
+
+function updateHeaderCount(){
+  var n=0;
+  if(currentPartieId){var p=getPartie(currentPartieId);if(p)n=countBoulesPartie(p);}
+  else parties.forEach(function(p){n+=countBoulesPartie(p);});
+  document.getElementById('header-count').textContent=n+(n>1?' boules':' boule');
+  var el=document.getElementById('party-ball-count');if(el)el.textContent=String(n);
+}
+
+function setMainTab(t){
+  mainTab=t;
+  document.querySelectorAll('#main-tabs .tab').forEach(function(x){x.classList.toggle('active',x.getAttribute('data-tab')===t);});
+  document.getElementById('view-home').classList.toggle('view-hidden',t!=='home');
+  document.getElementById('view-joueurs').classList.toggle('view-hidden',t!=='joueurs');
+  document.getElementById('view-stats').classList.toggle('view-hidden',t!=='stats');
+  document.getElementById('view-histo').classList.toggle('view-hidden',t!=='histo');
+  if(t==='home')renderHome();
+  if(t==='joueurs')renderJoueurs();
+  if(t==='stats'){onStatsScopeChange();renderStats();}
+  if(t==='histo')renderHisto();
+}
+window.setMainTab=setMainTab;
+
+function showPartyUI(on){
+  document.getElementById('hdr-main').classList.toggle('view-hidden',on);
+  document.getElementById('hdr-party').classList.toggle('view-hidden',!on);
+  document.getElementById('main-tabs').classList.toggle('view-hidden',on);
+  document.getElementById('view-home').classList.toggle('view-hidden',on||mainTab!=='home');
+  document.getElementById('view-joueurs').classList.toggle('view-hidden',on||mainTab!=='joueurs');
+  document.getElementById('view-stats').classList.toggle('view-hidden',on||mainTab!=='stats');
+  document.getElementById('view-histo').classList.toggle('view-hidden',on||mainTab!=='histo');
+  document.getElementById('view-party').classList.toggle('view-hidden',!on);
+}
+
+function openPartie(pid){
+  currentPartieId=pid;
+  var p=getPartie(pid);if(!p)return;
+  showPartyUI(true);
+  document.getElementById('party-title-h').textContent=p.label||'Partie';
+  document.getElementById('party-sub-h').textContent=fmtDateFr(p.date)+' · '+(p.joueurs||[]).length+' joueur'+(p.joueurs.length>1?'s':'');
+  renderJChips(p);
+  cur={};
+  document.querySelectorAll('#view-party .btn').forEach(function(b){b.className='btn';});
+  document.getElementById('btn-confirm').classList.add('dim');
+  updateBlocks();
+  var m=getCurrentMene(p);
+  document.getElementById('mene-num-d').textContent=String(m.numero);
+  updateHeaderCount();
+  document.getElementById('content').scrollTop=0;
+}
+window.openPartie=function(pid){openPartie(pid);};
+
+function leavePartie(){
+  currentPartieId=null;
+  showPartyUI(false);
+  setMainTab(mainTab);
+  renderHome();
+  updateHeaderCount();
+}
+window.leavePartie=leavePartie;
+
+function getCurrentMene(p){var ms=p.menes||[];return ms[ms.length-1];}
+
+function fmtDateFr(iso){if(!iso)return'';var p=iso.split('-');if(p.length===3)return p[2]+'/'+p[1]+'/'+p[0];return iso;}
+
+function renderHome(){
+  var list=document.getElementById('party-list');
+  var empty=document.getElementById('party-list-empty');
+  list.innerHTML='';
+  var sorted=parties.slice().sort(function(a,b){return(b.date||'').localeCompare(a.date||'');});
+  if(!sorted.length){empty.style.display='block';return;}
+  empty.style.display='none';
+  sorted.forEach(function(p){
+    var card=document.createElement('div');
+    card.className='party-card';
+    card.onclick=function(){openPartie(p.id);};
+    var names=(p.joueurs||[]).map(function(id){var j=getJoueur(id);return j?(j.prenom+' '+j.nom).trim():'?';}).join(', ');
+    card.innerHTML='<div class="party-card-title">'+(p.label||'Partie')+'</div><div class="party-card-meta">'+fmtDateFr(p.date)+'</div><div class="party-card-meta" style="margin-top:4px">'+escapeHtml(names)+'</div><div class="party-card-row"><span style="font-size:12px;color:var(--text2)">'+countBoulesPartie(p)+' boule'+(countBoulesPartie(p)>1?'s':'')+'</span><button type="button" class="btn-danger" onclick="event.stopPropagation();deletePartieConfirm(\''+p.id+'\')">Supprimer</button></div>';
+    list.appendChild(card);
+  });
+}
+
+function escapeHtml(s){
+  if(s==null)return'';
+  var d=document.createElement('div');d.textContent=s;return d.innerHTML;
+}
+
+function openNewPartieModal(){
+  var box=document.getElementById('new-partie-joueurs');
+  box.innerHTML='';
+  document.getElementById('new-partie-label').value='';
+  var noj=document.getElementById('new-partie-no-j');
+  if(!joueurs.length){noj.style.display='block';document.getElementById('modal-partie').classList.add('show');return;}
+  noj.style.display='none';
+  joueurs.forEach(function(j){
+    var row=document.createElement('label');
+    row.className='chk-row';
+    row.innerHTML='<input type="checkbox" value="'+j.id+'" class="np-jchk"> <span>'+escapeHtml((j.prenom+' '+j.nom).trim())+'</span>';
+    box.appendChild(row);
+  });
+  document.getElementById('modal-partie').classList.add('show');
+}
+window.openNewPartieModal=openNewPartieModal;
+
+function closeModal(id){document.getElementById(id).classList.remove('show');}
+window.closeModal=closeModal;
+
+function createPartie(){
+  var ids=[];
+  document.querySelectorAll('.np-jchk:checked').forEach(function(c){ids.push(c.value);});
+  if(!ids.length){alert('Sélectionne au moins un joueur.');return;}
+  var label=document.getElementById('new-partie-label').value.trim();
+  var d=new Date();
+  var def='Partie du '+String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear();
+  var pid=generateId(),mid=generateId();
+  parties.push({id:pid,date:d.toISOString().slice(0,10),label:label||def,joueurs:ids,lastJoueurId:ids[0],menes:[{id:mid,numero:1,boules:[]}]});
+  saveAll();
+  closeModal('modal-partie');
+  renderHome();
+  openPartie(pid);
+}
+window.createPartie=createPartie;
+
+function deletePartieConfirm(pid){
+  if(!confirm('Supprimer cette partie et toutes ses boules ?'))return;
+  parties=parties.filter(function(p){return p.id!==pid;});
+  if(currentPartieId===pid)leavePartie();
+  saveAll();
+  renderHome();renderHisto();renderStats();
+}
+window.deletePartieConfirm=deletePartieConfirm;
+
+function renderJChips(p){
+  var w=document.getElementById('j-chips');
+  w.innerHTML='';
+  var active=p.lastJoueurId&&(p.joueurs||[]).indexOf(p.lastJoueurId)>=0?p.lastJoueurId:p.joueurs[0];
+  (p.joueurs||[]).forEach(function(jid){
+    var j=getJoueur(jid);if(!j)return;
+    var chip=document.createElement('button');
+    chip.type='button';
+    chip.className='j-chip'+(jid===active?' selected':'');
+    chip.style.background=joueurColor(jid);
+    chip.style.color='#fff';
+    chip.textContent=j.avatar||makeAvatar(j.prenom,j.nom);
+    chip.onclick=function(){selectJoueur(p.id,jid);};
+    w.appendChild(chip);
+  });
+}
+
+function selectJoueur(pid,jid){
+  var p=getPartie(pid);if(!p)return;
+  p.lastJoueurId=jid;
+  saveAll();
+  renderJChips(p);
+}
+
+function nextMene(){
+  var p=getPartie(currentPartieId);if(!p)return;
+  var ms=p.menes||[];
+  var last=ms[ms.length-1];
+  var nmid=generateId(),num=(last?last.numero:0)+1;
+  ms.push({id:nmid,numero:num,boules:[]});
+  p.menes=ms;
+  saveAll();
+  document.getElementById('mene-num-d').textContent=String(num);
+  updateHeaderCount();
+}
+window.nextMene=nextMene;
+
+function pick(step,val){
+  if(step==='type'){
+    if(val==='tir'){delete cur.presult;delete cur.technique;}
+    else{delete cur.contact;delete cur.effet;}
+  }
+  if(step==='contact'&&val==='rate')delete cur.effet;
+  if(step==='presult')delete cur.technique;
+  cur[step]=val;
+  var m=pickMap[step];
+  m.ids.forEach(function(id,i){
+    var el=document.getElementById(id);if(!el)return;
+    el.className='btn'+(m.vals[i]===val?' '+m.cls[i]:'');
+  });
+  updateBlocks();
+}
+window.pick=pick;
+
+function setStepHidden(id,h){document.getElementById(id).classList.toggle('step-hidden',h);}
+function updateBlocks(){
+  var isTir=cur.type==='tir',isPt=cur.type==='point';
+  setStepHidden('blk-presult',!isPt);
+  setStepHidden('blk-tech',!isPt||!cur.presult);
+  setStepHidden('blk-contact',!isTir);
+  setStepHidden('blk-effet',!(isTir&&cur.contact==='touche'));
+  var ok=(isTir&&cur.contact==='rate')||(isTir&&cur.contact==='touche'&&cur.effet)||(isPt&&cur.presult&&cur.technique);
+  document.getElementById('btn-confirm').classList.toggle('dim',!ok);
+}
+
+function confirmEntry(){
+  var p=getPartie(currentPartieId);if(!p)return;
+  if(!p.lastJoueurId||p.joueurs.indexOf(p.lastJoueurId)<0){showFlashMsg('Choisis un joueur actif',true);return;}
+  var m=getCurrentMene(p);if(!m)return;
+  var ok=(cur.type==='tir'&&cur.contact==='rate')||(cur.type==='tir'&&cur.contact==='touche'&&cur.effet)||(cur.type==='point'&&cur.presult&&cur.technique);
+  if(!ok)return;
+  var b={id:generateId(),joueurId:p.lastJoueurId,type:cur.type,contact:cur.contact,effet:cur.effet,presult:cur.presult,technique:cur.technique,ts:Date.now()};
+  m.boules=m.boules||[];m.boules.push(b);
+  saveAll();
+  showFlashEntry(b);
+  cur={};
+  document.querySelectorAll('#view-party .btn').forEach(function(x){x.className='btn';});
+  document.getElementById('btn-confirm').classList.add('dim');
+  updateBlocks();
+  updateHeaderCount();
+  document.getElementById('content').scrollTo({top:0,behavior:'smooth'});
+}
+window.confirmEntry=confirmEntry;
+
+function showFlashMsg(msg,bad){
+  var el=document.getElementById('flash');
+  el.textContent=msg;
+  el.style.background=bad?'#a02020':'#1a7a48';
+  el.classList.add('show');
+  setTimeout(function(){el.classList.remove('show');},1600);
+}
+function showFlashEntry(e){
+  var msg=e.type==='tir'?(e.contact==='rate'?'Ratée':LABELS[e.effet]):LABELS[e.presult]+' · '+LABELS[e.technique];
+  var bad=e.contact==='rate'||e.presult==='mer'||e.presult==='nul';
+  var mid=e.presult==='defendable'||e.effet==='pale'||e.effet==='poussee';
+  var el=document.getElementById('flash');
+  el.textContent=msg;
+  el.style.background=bad?'#a02020':mid?'#a05010':'#1a7a48';
+  el.classList.add('show');
+  setTimeout(function(){el.classList.remove('show');},1600);
+}
+
+function renderJoueurs(){
+  var q=(document.getElementById('joueur-search').value||'').toLowerCase().trim();
+  var list=document.getElementById('joueur-list');
+  list.innerHTML='';
+  joueurs.filter(function(j){
+    if(!q)return true;
+    var s=((j.prenom||'')+' '+(j.nom||'')).toLowerCase();
+    return s.indexOf(q)>=0;
+  }).sort(function(a,b){return(a.nom||'').localeCompare(b.nom);}).forEach(function(j){
+    var row=document.createElement('div');
+    row.className='player-item';
+    var av=document.createElement('div');
+    av.className='player-av';
+    av.style.background=joueurColor(j.id);
+    av.style.color='#fff';
+    av.textContent=j.avatar||makeAvatar(j.prenom,j.nom);
+    var inf=document.createElement('div');
+    inf.className='player-info';
+    inf.innerHTML='<div class="player-name">'+escapeHtml((j.prenom+' '+j.nom).trim())+'</div>'+(j.licence?'<div class="player-lic">Lic. '+escapeHtml(j.licence)+'</div>':'');
+    var act=document.createElement('div');
+    act.className='player-actions';
+    act.innerHTML='<button type="button" onclick="openJoueurModal(\''+j.id+'\')">Modifier</button><button type="button" onclick="deleteJoueur(\''+j.id+'\')">Suppr</button>';
+    row.appendChild(av);row.appendChild(inf);row.appendChild(act);
+    list.appendChild(row);
+  });
+}
+window.renderJoueurs=renderJoueurs;
+
+function openJoueurModal(id){
+  editingJoueurId=id||null;
+  document.getElementById('modal-joueur-title').textContent=id?'Modifier le joueur':'Nouveau joueur';
+  if(id){
+    var j=getJoueur(id);if(!j)return;
+    document.getElementById('j-nom').value=j.nom||'';
+    document.getElementById('j-prenom').value=j.prenom||'';
+    document.getElementById('j-lic').value=j.licence||'';
+  }else{
+    document.getElementById('j-nom').value='';
+    document.getElementById('j-prenom').value='';
+    document.getElementById('j-lic').value='';
+  }
+  document.getElementById('modal-joueur').classList.add('show');
+}
+window.openJoueurModal=openJoueurModal;
+
+function saveJoueurForm(){
+  var nom=document.getElementById('j-nom').value.trim();
+  var prenom=document.getElementById('j-prenom').value.trim();
+  if(!nom||!prenom){alert('Nom et prénom obligatoires.');return;}
+  var lic=document.getElementById('j-lic').value.trim();
+  var av=makeAvatar(prenom,nom);
+  if(editingJoueurId){
+    var j=getJoueur(editingJoueurId);if(!j)return;
+    j.nom=nom;j.prenom=prenom;j.licence=lic;j.avatar=av;
+  }else{
+    joueurs.push({id:generateId(),nom:nom,prenom:prenom,licence:lic,avatar:av});
+  }
+  saveAll();
+  closeModal('modal-joueur');
+  renderJoueurs();renderHome();
+}
+window.saveJoueurForm=saveJoueurForm;
+
+function joueurReferenced(jid){
+  for(var i=0;i<parties.length;i++){
+    var p=parties[i];
+    if((p.joueurs||[]).indexOf(jid)>=0)return true;
+    for(var k=0;k<(p.menes||[]).length;k++){
+      for(var b=0;b<(p.menes[k].boules||[]).length;b++){
+        if(p.menes[k].boules[b].joueurId===jid)return true;
+      }
+    }
+  }
+  return false;
+}
+function deleteJoueur(jid){
+  if(!confirm('Supprimer ce joueur ?'))return;
+  if(joueurReferenced(jid)){alert('Impossible : ce joueur est lié à une partie ou une boule.');return;}
+  joueurs=joueurs.filter(function(j){return j.id!==jid;});
+  saveAll();
+  renderJoueurs();renderHome();
+}
+window.deleteJoueur=deleteJoueur;
+
+function onStatsScopeChange(){
+  var sc=document.getElementById('stats-scope').value;
+  document.getElementById('stats-row-joueur').classList.toggle('view-hidden',sc!=='joueur');
+  document.getElementById('stats-row-partie').classList.toggle('view-hidden',sc!=='partie');
+  var sj=document.getElementById('stats-joueur-sel');
+  sj.innerHTML='<option value="">— Joueur —</option>';
+  joueurs.forEach(function(j){
+    var o=document.createElement('option');
+    o.value=j.id;
+    o.textContent=(j.prenom+' '+j.nom).trim();
+    sj.appendChild(o);
+  });
+  var sp=document.getElementById('stats-partie-sel');
+  sp.innerHTML='<option value="">— Partie —</option>';
+  parties.slice().sort(function(a,b){return(b.date||'').localeCompare(a.date||'');}).forEach(function(p){
+    var o=document.createElement('option');
+    o.value=p.id;
+    o.textContent=p.label||p.date;
+    sp.appendChild(o);
+  });
+  renderStats();
+}
+window.onStatsScopeChange=onStatsScopeChange;
+
+function pct(arr,fn){return arr.length?Math.round(arr.filter(fn).length/arr.length*100):0;}
+
+function buildPointCrosstabHtml(pts,idPrefix){
+  if(!pts.length)return'<p class="no-data">Aucun pointé.</p>';
+  var html='';
+  PRESULTS.forEach(function(pr){
+    var sub=pts.filter(function(e){return e.presult===pr;});
+    var cls=PRESULT_CLS[pr];
+    var bid=idPrefix+pr;
+    html+='<div class="result-block'+(sub.length?'':' collapsed')+'" id="'+bid+'">';
+    html+='<div class="result-header" onclick="toggleBlock(\''+bid+'\')"><div class="result-left"><span class="rbadge '+cls+'">'+LABELS[pr]+'</span><span class="rcount">'+sub.length+' boule'+(sub.length>1?'s':'')+'</span></div><span class="chevron">▾</span></div><div class="tech-list">';
+    if(!sub.length)html+='<p class="empty-note">Aucune boule.</p>';
+    else TECHNIQUES.forEach(function(t){
+      var n=sub.filter(function(e){return e.technique===t;}).length;
+      var p=Math.round(n/sub.length*100);
+      html+='<div class="tech-row"><span class="tech-name">'+LABELS[t]+'</span><div class="tech-bar-wrap"><div class="tech-bar-fill" style="width:'+p+'%;background:'+TECH_COLORS[t]+'"></div></div><span class="tech-pct">'+p+'%</span><span class="tech-n">('+n+')</span></div>';
+    });
+    html+='</div></div>';
+  });
+  return html;
+}
+
+function htmlStatsBlock(entries,idPref){
+  if(!entries||!entries.length)return'<p class="no-data">Aucune boule pour cette vue.</p>';
+  var tirs=entries.filter(function(e){return e.type==='tir';});
+  var pts=entries.filter(function(e){return e.type==='point';});
+  var total=entries.length;
+  var carr=tirs.filter(function(e){return e.effet==='carreau';});
+  var html='<div class="stats-grid">';
+  html+='<div class="stat-card"><div class="stat-lbl">Total boules</div><div class="stat-val">'+total+'</div></div>';
+  html+='<div class="stat-card"><div class="stat-lbl">Carreaux</div><div class="stat-val">'+carr.length+'</div><div class="stat-sub">'+(tirs.length?Math.round(carr.length/tirs.length*100)+'% des tirs':'—')+'</div></div>';
+  html+='<div class="stat-card"><div class="stat-lbl">Tirs</div><div class="stat-val">'+tirs.length+'</div><div class="stat-sub">'+(total?Math.round(tirs.length/total*100)+'%':'—')+'</div></div>';
+  html+='<div class="stat-card"><div class="stat-lbl">Pointés</div><div class="stat-val">'+pts.length+'</div><div class="stat-sub">'+(total?Math.round(pts.length/total*100)+'%':'—')+'</div></div></div>';
+  html+='<div class="sec-title">Résultats des tirs</div>';
+  var pc=function(f){return pct(tirs,f);};
+  html+='<div class="prog-item"><div class="prog-row"><span>Carreau</span><span>'+pc(function(e){return e.effet==='carreau';})+'%</span></div><div class="prog-track"><div class="prog-fill" style="background:#7da87d;width:'+pc(function(e){return e.effet==='carreau';})+'%"></div></div></div>';
+  html+='<div class="prog-item"><div class="prog-row"><span>Palet</span><span>'+pc(function(e){return e.effet==='pale';})+'%</span></div><div class="prog-track"><div class="prog-fill" style="background:#c69b7a;width:'+pc(function(e){return e.effet==='pale';})+'%"></div></div></div>';
+  html+='<div class="prog-item"><div class="prog-row"><span>Poussée</span><span>'+pc(function(e){return e.effet==='poussee';})+'%</span></div><div class="prog-track"><div class="prog-fill" style="background:#7a9cc6;width:'+pc(function(e){return e.effet==='poussee';})+'%"></div></div></div>';
+  html+='<div class="prog-item"><div class="prog-row"><span>Ratée</span><span>'+pc(function(e){return e.contact==='rate';})+'%</span></div><div class="prog-track"><div class="prog-fill" style="background:#c67a7a;width:'+pc(function(e){return e.contact==='rate';})+'%"></div></div></div>';
+  html+='<div class="sec-title">Pointés : résultats × techniques</div>';
+  html+=buildPointCrosstabHtml(pts,idPref||'st-');
+  return html;
+}
+
+function renderStats(){
+  var sc=document.getElementById('stats-scope').value;
+  var panel=document.getElementById('stats-panel');
+  var wrap=document.getElementById('stats-per-joueur-wrap');
+  wrap.classList.add('view-hidden');
+  wrap.innerHTML='';
+  var entries;
+  if(sc==='global')entries=flattenBoules();
+  else if(sc==='joueur'){
+    var jid=document.getElementById('stats-joueur-sel').value;
+    if(!jid){panel.innerHTML='<p class="no-data">Choisis un joueur.</p>';return;}
+    entries=flattenBoules(function(o){return o.boule.joueurId===jid;});
+  }else{
+    var pid=document.getElementById('stats-partie-sel').value;
+    if(!pid){panel.innerHTML='<p class="no-data">Choisis une partie.</p>';return;}
+    entries=flattenBoules(function(o){return o.partie.id===pid;});
+    var p=getPartie(pid);
+    if(p&&(p.joueurs||[]).length){
+      wrap.classList.remove('view-hidden');
+      var sub='';
+      (p.joueurs||[]).forEach(function(jid){
+        var j=getJoueur(jid);if(!j)return;
+        var eb=flattenBoules(function(o){return o.partie.id===pid&&o.boule.joueurId===jid;});
+        sub+='<div class="sec-title">'+(escapeHtml((j.prenom+' '+j.nom).trim()))+'</div>';
+        sub+=htmlStatsBlock(eb,'pj-'+jid+'-');
+      });
+      wrap.innerHTML=sub;
+    }
+  }
+  if(!entries.length){panel.innerHTML='<p class="no-data">Aucune boule pour cette vue.</p>';return;}
+  panel.innerHTML=htmlStatsBlock(entries,'sg-');
+}
+window.renderStats=renderStats;
+
+function toggleBlock(id){
+  var el=document.getElementById(id);
+  if(el)el.classList.toggle('collapsed');
+}
+window.toggleBlock=toggleBlock;
+
+function renderHisto(){
+  var root=document.getElementById('histo-root');
+  var empty=document.getElementById('histo-empty');
+  root.innerHTML='';
+  var has=false;
+  parties.slice().sort(function(a,b){return(b.date||'').localeCompare(a.date||'');}).forEach(function(p){
+    if(countBoulesPartie(p))has=true;
+    var part=document.createElement('div');
+    part.className='hist-partie';
+    var head=document.createElement('div');
+    head.className='hist-head';
+    head.onclick=function(){part.classList.toggle('open');};
+    head.innerHTML='<div class="hist-head-left"><div class="hist-title">'+escapeHtml(p.label||'Partie')+'</div><div class="hist-sub">'+fmtDateFr(p.date)+' · '+countBoulesPartie(p)+' boules</div></div><button type="button" class="btn-danger" onclick="event.stopPropagation();deletePartieConfirm(\''+p.id+'\')">Suppr. partie</button>';
+    var body=document.createElement('div');
+    body.className='hist-body';
+    (p.menes||[]).slice().sort(function(a,b){return a.numero-b.numero;}).forEach(function(m){
+      var md=document.createElement('div');
+      md.className='hist-mene';
+      var mh=document.createElement('div');
+      mh.className='hist-mene-head';
+      mh.innerHTML='<span>Mène '+m.numero+'</span><button type="button" class="btn-danger" onclick="event.stopPropagation();deleteMeneConfirm(\''+p.id+'\',\''+m.id+'\')">Suppr. mène</button>';
+      md.appendChild(mh);
+      (m.boules||[]).slice().forEach(function(b){
+        var row=document.createElement('div');
+        row.className='hist-boule';
+        var j=getJoueur(b.joueurId);
+        var jlab=j?((j.prenom+' '+j.nom).trim()):'?';
+        var av=document.createElement('span');
+        av.className='badge b-tech';
+        av.style.background=joueurColor(b.joueurId);
+        av.style.color='#fff';
+        av.style.border='none';
+        av.textContent=j?(j.avatar||makeAvatar(j.prenom,j.nom)): '?';
+        row.appendChild(av);
+        row.appendChild(document.createTextNode(' '+escapeHtml(jlab)+' '));
+        if(b.type==='tir'){
+          var sp=document.createElement('span');
+          sp.className='badge '+(b.contact==='rate'?'b-ko':b.effet==='carreau'?'b-ok':'b-mid');
+          sp.textContent=b.contact==='rate'?'Ratée':LABELS[b.effet];
+          row.appendChild(sp);
+        }else{
+          var sp2=document.createElement('span');
+          sp2.className='badge b-ok';
+          sp2.textContent=LABELS[b.presult];
+          row.appendChild(sp2);
+          var sp3=document.createElement('span');
+          sp3.className='badge b-tech';
+          sp3.textContent=LABELS[b.technique];
+          row.appendChild(sp3);
+        }
+        var bt=document.createElement('button');
+        bt.type='button';
+        bt.className='btn-danger';
+        bt.style.marginLeft='auto';
+        bt.textContent='×';
+        bt.onclick=function(e){e.stopPropagation();deleteBouleConfirm(p.id,m.id,b.id);};
+        row.appendChild(bt);
+        md.appendChild(row);
+      });
+      body.appendChild(md);
+    });
+    part.appendChild(head);
+    part.appendChild(body);
+    root.appendChild(part);
+  });
+  empty.classList.toggle('view-hidden',has);
+}
+window.renderHisto=renderHisto;
+
+function deleteMeneConfirm(pid,mid){
+  if(!confirm('Supprimer cette mène et toutes ses boules ?'))return;
+  var p=getPartie(pid);if(!p)return;
+  p.menes=(p.menes||[]).filter(function(m){return m.id!==mid;});
+  if(!p.menes.length){
+    var nid=generateId();
+    p.menes.push({id:nid,numero:1,boules:[]});
+  }
+  saveAll();
+  renderHisto();
+  if(currentPartieId===pid){
+    var m=getCurrentMene(p);
+    document.getElementById('mene-num-d').textContent=String(m.numero);
+  }
+  updateHeaderCount();renderStats();renderHome();
+}
+window.deleteMeneConfirm=deleteMeneConfirm;
+
+function deleteBouleConfirm(pid,mid,bid){
+  if(!confirm('Supprimer cette boule ?'))return;
+  var p=getPartie(pid);if(!p)return;
+  var m=(p.menes||[]).find(function(x){return x.id===mid;});
+  if(!m)return;
+  m.boules=(m.boules||[]).filter(function(b){return b.id!==bid;});
+  saveAll();
+  renderHisto();
+  updateHeaderCount();renderStats();renderHome();
+}
+window.deleteBouleConfirm=deleteBouleConfirm;
+
+function resetAllData(){
+  if(!confirm('Tout effacer (joueurs, parties, données) ?'))return;
+  joueurs=[];parties=[];cur={};currentPartieId=null;
+  localStorage.removeItem(K_J);localStorage.removeItem(K_P);
+  localStorage.setItem(K_MIG,'1');
+  saveAll();
+  leavePartie();
+  setMainTab('home');
+}
+window.resetAllData=resetAllData;
+
+loadAll();
+migrateLegacy();
+saveAll();
+renderHome();
+updateHeaderCount();
+
+if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js',{scope:'./'});
+})();
+</script>
 </body>
 </html>

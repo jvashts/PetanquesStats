@@ -10,8 +10,6 @@ self.addEventListener('install', function (e) {
     caches.open(CACHE).then(function (c) {
       return c.addAll([
         asset('index.html'),
-        asset('styles.css'),
-        asset('app.js'),
         asset('manifest.json'),
         asset('icons/icon-192.png'),
         asset('icons/icon-512.png')

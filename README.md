@@ -24,9 +24,7 @@ Suivi des performances en pétanque, installable sur iPhone et Android.
 ### Étape 2 — Uploader les fichiers
 1. Dans ton dépôt, clique **"Add file" → "Upload files"**
 2. Glisse-dépose **tous les fichiers** de ce dossier :
-   - `index.html`
-   - `styles.css`
-   - `app.js`
+   - `index.html` (application complète : HTML + CSS + JS)
    - `manifest.json`
    - `sw.js`
    - le dossier `icons/` avec `icon-192.png` et `icon-512.png`
