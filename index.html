@@ -142,6 +142,11 @@ body{display:flex;flex-direction:column}
 .session-badge-inline{font-size:10px;padding:3px 8px;border-radius:6px;font-weight:600;margin-right:8px;vertical-align:middle}
 .session-badge-inline.train{background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-border)}
 .session-badge-inline.match{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-border)}
+.np-player-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;width:100%;flex-wrap:wrap}
+.np-player-row .chk-row{flex:1;min-width:140px;margin-bottom:0}
+.np-format-hint{font-size:12px;color:var(--text3);margin:6px 0 10px;line-height:1.4}
+.j-chip.j-chip-eq-a{box-shadow:0 0 0 3px var(--blue)}
+.j-chip.j-chip-eq-b{box-shadow:0 0 0 3px var(--amber)}
   </style>
 </head>
 <body>
@@ -302,6 +307,14 @@ body{display:flex;flex-direction:column}
       <button type="button" class="modal-btn selected" id="np-type-training" onclick="selectNpSessionType('training')">Entraînement</button>
       <button type="button" class="modal-btn" id="np-type-match" onclick="selectNpSessionType('match')">Partie</button>
     </div>
+    <label class="step-lbl">Format &amp; équipes</label>
+    <select class="filter-select" id="np-format" style="width:100%;margin-bottom:4px" onchange="onNpFormatChange()">
+      <option value="libre">Libre — pas d’équipes (séance, nombre variable)</option>
+      <option value="tete_a_tete">Tête à tête — 1 vs 1</option>
+      <option value="doublette">Doublette — 2 vs 2</option>
+      <option value="triplette">Triplette — 3 vs 3</option>
+    </select>
+    <p class="np-format-hint" id="np-format-hint" style="display:none"></p>
     <label class="step-lbl">Nom (optionnel)</label>
     <input type="text" class="modal-input" id="new-partie-label" placeholder="Ex. Tir au jack, Finale club…">
     <div class="np-quick" id="np-quick-wrap">
@@ -355,9 +368,20 @@ function loadAll(){
   try{parties=JSON.parse(localStorage.getItem(K_P)||'[]');}catch(e){parties=[];}
   if(!Array.isArray(joueurs))joueurs=[];
   if(!Array.isArray(parties))parties=[];
-  parties.forEach(function(p){if(!p.sessionType)p.sessionType='match';});
+  parties.forEach(function(p){
+    if(!p.sessionType)p.sessionType='match';
+    if(!p.format)p.format='libre';
+    if(!Array.isArray(p.equipeA))p.equipeA=[];
+    if(!Array.isArray(p.equipeB))p.equipeB=[];
+  });
 }
 function sessionTypeOf(p){return p&&p.sessionType==='training'?'training':'match';}
+function équipeOfJoueur(p,jid){
+  if(!p||p.format==='libre')return null;
+  if((p.equipeA||[]).indexOf(jid)>=0)return 'A';
+  if((p.equipeB||[]).indexOf(jid)>=0)return 'B';
+  return null;
+}
 function saveAll(){
   localStorage.setItem(K_J,JSON.stringify(joueurs));
   localStorage.setItem(K_P,JSON.stringify(parties));
@@ -376,7 +400,7 @@ function migrateLegacy(){
   var boules=entries.map(function(e){
     return{id:generateId(),joueurId:jid,type:e.type,contact:e.contact,effet:e.effet,presult:e.presult,technique:e.technique,ts:e.ts||Date.now()};
   });
-  parties.push({id:pid,date:new Date().toISOString().slice(0,10),label:'Parties précédentes',sessionType:'match',joueurs:[jid],lastJoueurId:null,menes:[{id:mid,numero:1,boules:boules}]});
+  parties.push({id:pid,date:new Date().toISOString().slice(0,10),label:'Parties précédentes',sessionType:'match',format:'libre',equipeA:[],equipeB:[],joueurs:[jid],lastJoueurId:null,menes:[{id:mid,numero:1,boules:boules}]});
   saveAll();
   localStorage.removeItem('petanque_entries');
   localStorage.removeItem('petanque_sessions');
@@ -439,7 +463,14 @@ function openPartie(pid){
   showPartyUI(true);
   document.getElementById('party-title-h').textContent=p.label||(sessionTypeOf(p)==='training'?'Entraînement':'Partie');
   var typ=sessionTypeOf(p)==='training'?'Entraînement':'Partie compétitive';
-  document.getElementById('party-sub-h').textContent=typ+' · '+fmtDateFr(p.date)+' · '+(p.joueurs||[]).length+' joueur'+(p.joueurs.length>1?'s':'');
+  var bits=[];
+  if(p.format==='triplette')bits.push('Triplette 3vs3');
+  else if(p.format==='doublette')bits.push('Doublette 2vs2');
+  else if(p.format==='tete_a_tete')bits.push('Tête à tête 1vs1');
+  bits.push(typ);
+  bits.push(fmtDateFr(p.date));
+  bits.push((p.joueurs||[]).length+' joueur'+((p.joueurs||[]).length>1?'s':''));
+  document.getElementById('party-sub-h').textContent=bits.join(' · ');
   renderJChips(p);
   cur={};
   document.querySelectorAll('#view-party .btn').forEach(function(b){b.className='btn';});
@@ -478,10 +509,21 @@ function renderHome(){
     var card=document.createElement('div');
     card.className='party-card';
     card.onclick=function(){openPartie(p.id);};
-    var names=(p.joueurs||[]).map(function(id){var j=getJoueur(id);return j?(j.prenom+' '+j.nom).trim():'?';}).join(', ');
+    var names;
+    if(p.format&&p.format!=='libre'&&(p.equipeA||[]).length+(p.equipeB||[]).length){
+      var na=(p.equipeA||[]).map(function(id){var j=getJoueur(id);return j?(j.prenom+' '+j.nom).trim():'?';}).join(', ');
+      var nb=(p.equipeB||[]).map(function(id){var j=getJoueur(id);return j?(j.prenom+' '+j.nom).trim():'?';}).join(', ');
+      names='Éq. A : '+na+' — Éq. B : '+nb;
+    }else{
+      names=(p.joueurs||[]).map(function(id){var j=getJoueur(id);return j?(j.prenom+' '+j.nom).trim():'?';}).join(', ');
+    }
+    var fmtChip='';
+    if(p.format==='triplette')fmtChip='<span class="session-badge-inline train">3vs3</span>';
+    else if(p.format==='doublette')fmtChip='<span class="session-badge-inline train">2vs2</span>';
+    else if(p.format==='tete_a_tete')fmtChip='<span class="session-badge-inline train">1vs1</span>';
     var badge=sessionTypeOf(p)==='training'?'<span class="session-badge-inline train">Entraînement</span>':'<span class="session-badge-inline match">Partie</span>';
     var defLab=sessionTypeOf(p)==='training'?'Entraînement':'Partie';
-    card.innerHTML='<div class="party-card-title">'+badge+escapeHtml(p.label||defLab)+'</div><div class="party-card-meta">'+fmtDateFr(p.date)+'</div><div class="party-card-meta" style="margin-top:4px">'+escapeHtml(names)+'</div><div class="party-card-row"><span style="font-size:12px;color:var(--text2)">'+countBoulesPartie(p)+' boule'+(countBoulesPartie(p)>1?'s':'')+'</span><button type="button" class="btn-danger" onclick="event.stopPropagation();deletePartieConfirm(\''+p.id+'\')">Supprimer</button></div>';
+    card.innerHTML='<div class="party-card-title">'+badge+fmtChip+escapeHtml(p.label||defLab)+'</div><div class="party-card-meta">'+fmtDateFr(p.date)+'</div><div class="party-card-meta" style="margin-top:4px">'+escapeHtml(names)+'</div><div class="party-card-row"><span style="font-size:12px;color:var(--text2)">'+countBoulesPartie(p)+' boule'+(countBoulesPartie(p)>1?'s':'')+'</span><button type="button" class="btn-danger" onclick="event.stopPropagation();deletePartieConfirm(\''+p.id+'\')">Supprimer</button></div>';
     list.appendChild(card);
   });
 }
@@ -497,40 +539,98 @@ function selectNpSessionType(t){
 }
 window.selectNpSessionType=selectNpSessionType;
 
-function rebuildNpJoueurList(preservedChecked){
+function npFormatHintText(fmt){
+  if(fmt==='libre')return'';
+  if(fmt==='tete_a_tete')return'Règle : 2 joueurs au total — un à l’équipe A, un à l’équipe B.';
+  if(fmt==='doublette')return'Règle : 4 joueurs — 2 en équipe A, 2 en équipe B.';
+  if(fmt==='triplette')return'Triplette : 6 joueurs au total — exactement 3 en équipe A et 3 en équipe B (3 contre 3).';
+  return'';
+}
+function onNpFormatChange(){
+  var fmt=document.getElementById('np-format').value;
+  var hint=document.getElementById('np-format-hint');
+  var t=npFormatHintText(fmt);
+  hint.textContent=t;
+  hint.style.display=t?'block':'none';
+  var prev=new Set();
+  document.querySelectorAll('.np-jchk:checked').forEach(function(c){prev.add(c.value);});
+  var tm={};
+  document.querySelectorAll('.np-team').forEach(function(s){
+    var id=s.getAttribute('data-jid');
+    if(id&&s.value)tm[id]=s.value;
+  });
+  rebuildNpJoueurList(prev,tm);
+}
+window.onNpFormatChange=onNpFormatChange;
+
+function rebuildNpJoueurList(preservedChecked,preservedTeams){
   var prev=preservedChecked;
   if(!prev){
     prev=new Set();
     document.querySelectorAll('.np-jchk').forEach(function(c){if(c.checked)prev.add(c.value);});
   }
+  var teams=preservedTeams;
+  if(!teams){
+    teams={};
+    document.querySelectorAll('.np-team').forEach(function(s){
+      var id=s.getAttribute('data-jid');
+      if(id&&s.value)teams[id]=s.value;
+    });
+  }
+  var fmt=document.getElementById('np-format').value;
   var box=document.getElementById('new-partie-joueurs');
   var noj=document.getElementById('new-partie-no-j');
   box.innerHTML='';
   joueurs.forEach(function(j){
-    var row=document.createElement('label');
-    row.className='chk-row';
+    var wrap=document.createElement('div');
+    wrap.className='np-player-row';
+    var lab=document.createElement('label');
+    lab.className='chk-row';
     var chk=document.createElement('input');
     chk.type='checkbox';
     chk.value=j.id;
     chk.className='np-jchk';
     chk.checked=prev.has(j.id);
-    row.appendChild(chk);
-    row.appendChild(document.createTextNode(' '));
+    lab.appendChild(chk);
+    lab.appendChild(document.createTextNode(' '));
     var sp=document.createElement('span');
     sp.textContent=(j.prenom+' '+j.nom).trim();
-    row.appendChild(sp);
-    box.appendChild(row);
+    lab.appendChild(sp);
+    var sel=document.createElement('select');
+    sel.className='filter-select np-team';
+    sel.setAttribute('data-jid',j.id);
+    sel.innerHTML='<option value="">— Équipe —</option><option value="A">Équipe A</option><option value="B">Équipe B</option>';
+    if(teams[j.id])sel.value=teams[j.id];
+    sel.style.display=fmt==='libre'?'none':'';
+    sel.style.flex='0 0 auto';
+    sel.style.minWidth='120px';
+    sel.onchange=function(){};
+    wrap.appendChild(lab);
+    wrap.appendChild(sel);
+    box.appendChild(wrap);
   });
   noj.style.display=joueurs.length?'none':'block';
 }
 
+function collectNpTeamMap(){
+  var tm={};
+  document.querySelectorAll('.np-team').forEach(function(s){
+    var id=s.getAttribute('data-jid');
+    if(id&&s.value)tm[id]=s.value;
+  });
+  return tm;
+}
+
 function openNewPartieModal(){
   selectNpSessionType('training');
+  document.getElementById('np-format').value='libre';
   document.getElementById('new-partie-label').value='';
   document.getElementById('np-q-prenom').value='';
   document.getElementById('np-q-nom').value='';
   document.getElementById('np-q-lic').value='';
-  rebuildNpJoueurList(new Set());
+  document.getElementById('np-format-hint').textContent='';
+  document.getElementById('np-format-hint').style.display='none';
+  rebuildNpJoueurList(new Set(),{});
   document.getElementById('modal-partie').classList.add('show');
 }
 window.openNewPartieModal=openNewPartieModal;
@@ -547,7 +647,7 @@ function addQuickJoueurInPartieModal(){
   var toCheck=new Set();
   document.querySelectorAll('.np-jchk:checked').forEach(function(c){toCheck.add(c.value);});
   toCheck.add(id);
-  rebuildNpJoueurList(toCheck);
+  rebuildNpJoueurList(toCheck,collectNpTeamMap());
   document.getElementById('np-q-prenom').value='';
   document.getElementById('np-q-nom').value='';
   document.getElementById('np-q-lic').value='';
@@ -560,9 +660,39 @@ function closeModal(id){document.getElementById(id).classList.remove('show');}
 window.closeModal=closeModal;
 
 function createPartie(){
+  var fmt=document.getElementById('np-format').value;
   var ids=[];
-  document.querySelectorAll('.np-jchk:checked').forEach(function(c){ids.push(c.value);});
+  var equipeA=[],equipeB=[];
+  document.querySelectorAll('.np-player-row').forEach(function(row){
+    var chk=row.querySelector('.np-jchk');
+    if(!chk||!chk.checked)return;
+    ids.push(chk.value);
+    if(fmt!=='libre'){
+      var sel=row.querySelector('.np-team');
+      var t=sel?sel.value:'';
+      if(t==='A')equipeA.push(chk.value);
+      else if(t==='B')equipeB.push(chk.value);
+    }
+  });
   if(!ids.length){alert('Sélectionne au moins un joueur, ou crée-en un avec le formulaire au-dessus.');return;}
+  if(fmt!=='libre'){
+    if(equipeA.length+equipeB.length!==ids.length){
+      alert('Chaque joueur coché doit être affecté à l’équipe A ou B.');
+      return;
+    }
+    if(fmt==='tete_a_tete'&&(ids.length!==2||equipeA.length!==1||equipeB.length!==1)){
+      alert('Tête à tête : exactement 2 joueurs — 1 en équipe A, 1 en équipe B.');
+      return;
+    }
+    if(fmt==='doublette'&&(ids.length!==4||equipeA.length!==2||equipeB.length!==2)){
+      alert('Doublette : 4 joueurs — 2 en équipe A et 2 en équipe B.');
+      return;
+    }
+    if(fmt==='triplette'&&(ids.length!==6||equipeA.length!==3||equipeB.length!==3)){
+      alert('Triplette : 6 joueurs — 3 en équipe A et 3 en équipe B (3 contre 3).');
+      return;
+    }
+  }
   var label=document.getElementById('new-partie-label').value.trim();
   var d=new Date();
   var dd=String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear();
@@ -570,7 +700,19 @@ function createPartie(){
   var sessionType=isTraining?'training':'match';
   var def=isTraining?('Entraînement du '+dd):('Partie du '+dd);
   var pid=generateId(),mid=generateId();
-  parties.push({id:pid,date:d.toISOString().slice(0,10),label:label||def,sessionType:sessionType,joueurs:ids,lastJoueurId:null,menes:[{id:mid,numero:1,boules:[]}]});
+  var joueurOrder=fmt==='libre'?ids:equipeA.concat(equipeB);
+  parties.push({
+    id:pid,
+    date:d.toISOString().slice(0,10),
+    label:label||def,
+    sessionType:sessionType,
+    format:fmt,
+    equipeA:fmt==='libre'?[]:equipeA.slice(),
+    equipeB:fmt==='libre'?[]:equipeB.slice(),
+    joueurs:joueurOrder,
+    lastJoueurId:null,
+    menes:[{id:mid,numero:1,boules:[]}]
+  });
   saveAll();
   closeModal('modal-partie');
   renderHome();
@@ -595,10 +737,12 @@ function renderJChips(p){
     var j=getJoueur(jid);if(!j)return;
     var chip=document.createElement('button');
     chip.type='button';
-    chip.className='j-chip'+(jid===active?' selected':'');
+    var eq=équipeOfJoueur(p,jid);
+    chip.className='j-chip'+(jid===active?' selected':'')+(eq==='A'?' j-chip-eq-a':eq==='B'?' j-chip-eq-b':'');
     chip.style.background=joueurColor(jid);
     chip.style.color='#fff';
     chip.textContent=j.avatar||makeAvatar(j.prenom,j.nom);
+    chip.title=eq?(eq==='A'?'Équipe A':'Équipe B'):'';
     chip.onclick=function(){selectJoueur(p.id,jid);};
     w.appendChild(chip);
   });
