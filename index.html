@@ -46,61 +46,45 @@
     html, body { height: 100%; background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; overflow: hidden; }
     body { display: flex; flex-direction: column; }
 
-    /* HEADER */
     .header { background: var(--bg2); border-bottom: 1px solid var(--border); padding: 14px 16px 12px; flex-shrink: 0; display: flex; align-items: center; gap: 10px; }
-    .header-icon { font-size: 22px; }
     .header-title { font-size: 17px; font-weight: 700; letter-spacing: -0.3px; }
     .header-count { margin-left: auto; background: var(--bg3); border: 1px solid var(--border); border-radius: 20px; padding: 4px 12px; font-size: 12px; color: var(--text2); }
 
-    /* TABS */
+    .session-bar { background: var(--bg2); border-bottom: 1px solid var(--border); padding: 12px 16px; flex-shrink: 0; display: flex; align-items: center; gap: 12px; font-size: 13px; }
+    .session-label { color: var(--text3); font-weight: 500; }
+    .session-info { flex: 1; display: flex; align-items: center; gap: 8px; }
+    .session-badge { background: var(--amber-bg); color: var(--amber); border: 1px solid var(--amber-border); padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 500; }
+    .session-badge.training { background: var(--blue-bg); color: var(--blue); border-color: var(--blue-border); }
+    .session-name { color: var(--text); font-weight: 600; }
+    .session-btn { background: var(--bg3); border: 1px solid var(--border); color: var(--text2); padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; transition: all .12s; margin-left: auto; }
+    .session-btn:active { transform: scale(0.95); }
+
     .tabs { display: flex; background: var(--bg2); border-bottom: 1px solid var(--border); flex-shrink: 0; }
     .tab { flex: 1; padding: 12px 4px; font-size: 13px; font-weight: 500; color: var(--text3); text-align: center; cursor: pointer; border-bottom: 2px solid transparent; transition: all .15s; }
     .tab.active { color: var(--amber); border-bottom-color: var(--amber); }
 
-    /* SCROLL AREA */
-    .content { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 16px; }
+    .content { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 16px; padding-bottom: calc(16px + env(safe-area-inset-bottom)); }
 
-    /* STEP BLOCKS */
     .step-block { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; margin-bottom: 12px; transition: opacity .2s; }
     .step-block.dim { opacity: 0.35; pointer-events: none; }
     .step-lbl { font-size: 10px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 10px; }
     .btns { display: flex; gap: 8px; flex-wrap: wrap; }
-    .btn {
-      flex: 1; min-width: 100px; padding: 16px 12px;
-      border: 1px solid var(--border); border-radius: var(--radius-sm);
-      background: var(--bg3); color: var(--text2);
-      font-size: 14px; font-weight: 500; cursor: pointer;
-      text-align: center; line-height: 1.3; transition: all .12s;
-      -webkit-tap-highlight-color: transparent;
-      user-select: none;
-    }
+    .btn { flex: 1; min-width: 100px; padding: 16px 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--bg3); color: var(--text2); font-size: 14px; font-weight: 500; cursor: pointer; text-align: center; line-height: 1.3; transition: all .12s; user-select: none; }
     .btn:active { transform: scale(0.96); }
-    .btn.sel-tir    { background: var(--amber-bg); border-color: var(--amber-border); color: var(--amber); }
-    .btn.sel-point  { background: var(--blue-bg);  border-color: var(--blue-border);  color: var(--blue); }
-    .btn.sel-ok     { background: var(--green-bg); border-color: var(--green-border); color: var(--green); }
-    .btn.sel-bad    { background: var(--red-bg);   border-color: var(--red-border);   color: var(--red); }
-    .btn.sel-mid    { background: var(--orange-bg);border-color: var(--orange-border);color: var(--orange); }
-    .btn.sel-tech   { background: var(--purple-bg);border-color: var(--purple-border);color: var(--purple); }
+    .btn.sel-tir { background: var(--amber-bg); border-color: var(--amber-border); color: var(--amber); }
+    .btn.sel-point { background: var(--blue-bg); border-color: var(--blue-border); color: var(--blue); }
+    .btn.sel-ok { background: var(--green-bg); border-color: var(--green-border); color: var(--green); }
+    .btn.sel-bad { background: var(--red-bg); border-color: var(--red-border); color: var(--red); }
+    .btn.sel-mid { background: var(--orange-bg); border-color: var(--orange-border); color: var(--orange); }
+    .btn.sel-tech { background: var(--purple-bg); border-color: var(--purple-border); color: var(--purple); }
 
-    .confirm-btn {
-      width: 100%; padding: 16px; border-radius: var(--radius);
-      border: 2px solid var(--green-border); background: var(--green-bg);
-      color: var(--green); font-size: 16px; font-weight: 600; cursor: pointer;
-      margin-top: 4px; transition: all .12s;
-    }
+    .confirm-btn { width: 100%; padding: 16px; border-radius: var(--radius); border: 2px solid var(--green-border); background: var(--green-bg); color: var(--green); font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 4px; transition: all .12s; }
     .confirm-btn:active { transform: scale(0.98); }
     .confirm-btn.dim { opacity: 0.3; pointer-events: none; }
 
-    /* FLASH */
-    .flash {
-      position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
-      padding: 10px 24px; border-radius: 24px; font-size: 13px; font-weight: 600;
-      color: #fff; opacity: 0; pointer-events: none; z-index: 999;
-      transition: opacity .25s; white-space: nowrap; max-width: 90vw; text-align: center;
-    }
+    .flash { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); padding: 10px 24px; border-radius: 24px; font-size: 13px; font-weight: 600; color: #fff; opacity: 0; pointer-events: none; z-index: 999; transition: opacity .25s; white-space: nowrap; max-width: 90vw; text-align: center; }
     .flash.show { opacity: 1; }
 
-    /* STATS */
     .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
     .stat-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; }
     .stat-lbl { font-size: 11px; color: var(--text3); margin-bottom: 6px; }
@@ -108,21 +92,19 @@
     .stat-sub { font-size: 11px; color: var(--text3); margin-top: 3px; }
     .sec-title { font-size: 10px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: .08em; margin: 18px 0 10px; }
 
-    /* PROGRESS BARS */
     .prog-item { margin-bottom: 10px; }
     .prog-row { display: flex; justify-content: space-between; font-size: 12px; color: var(--text2); margin-bottom: 5px; }
     .prog-track { height: 5px; border-radius: 3px; background: var(--bg3); overflow: hidden; }
     .prog-fill { height: 100%; border-radius: 3px; transition: width .5s cubic-bezier(.4,0,.2,1); }
 
-    /* CROSSTAB */
     .result-block { border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 10px; overflow: hidden; }
     .result-header { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; background: var(--bg2); cursor: pointer; user-select: none; }
     .result-left { display: flex; align-items: center; gap: 8px; }
     .rbadge { font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 6px; }
-    .rb-ok   { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
-    .rb-mid  { background: var(--orange-bg); color: var(--orange); border: 1px solid var(--orange-border); }
-    .rb-ko   { background: var(--red-bg); color: var(--red); border: 1px solid var(--red-border); }
-    .rcount  { font-size: 12px; color: var(--text3); }
+    .rb-ok { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+    .rb-mid { background: var(--orange-bg); color: var(--orange); border: 1px solid var(--orange-border); }
+    .rb-ko { background: var(--red-bg); color: var(--red); border: 1px solid var(--red-border); }
+    .rcount { font-size: 12px; color: var(--text3); }
     .chevron { font-size: 12px; color: var(--text3); transition: transform .2s; }
     .collapsed .chevron { transform: rotate(-90deg); }
     .tech-list { padding: 12px 14px; background: var(--bg); border-top: 1px solid var(--border); }
@@ -135,22 +117,39 @@
     .tech-n { font-size: 11px; color: var(--text3); min-width: 28px; text-align: right; }
     .empty-note { font-size: 12px; color: var(--text3); font-style: italic; padding: 2px 0; }
 
-    /* LOG */
     .log-item { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: 10px 0; border-bottom: 1px solid var(--border); }
     .badge { font-size: 11px; font-weight: 600; padding: 4px 9px; border-radius: 6px; }
-    .b-tir   { background: var(--amber-bg); color: var(--amber); }
+    .b-tir { background: var(--amber-bg); color: var(--amber); }
     .b-point { background: var(--blue-bg); color: var(--blue); }
-    .b-ok    { background: var(--green-bg); color: var(--green); }
-    .b-ko    { background: var(--red-bg); color: var(--red); }
-    .b-mid   { background: var(--orange-bg); color: var(--orange); }
-    .b-tech  { background: var(--purple-bg); color: var(--purple); }
+    .b-ok { background: var(--green-bg); color: var(--green); }
+    .b-ko { background: var(--red-bg); color: var(--red); }
+    .b-mid { background: var(--orange-bg); color: var(--orange); }
+    .b-tech { background: var(--purple-bg); color: var(--purple); }
     .log-num { font-size: 11px; color: var(--text3); margin-left: auto; }
 
     .reset-btn { width: 100%; padding: 12px; border: 1px solid var(--border2); border-radius: var(--radius-sm); background: transparent; color: var(--text3); font-size: 13px; cursor: pointer; margin-top: 16px; }
     .no-data { text-align: center; color: var(--text3); font-size: 13px; padding: 32px 0; font-style: italic; }
 
-    /* safe area for notch phones */
-    .content { padding-bottom: calc(16px + env(safe-area-inset-bottom)); }
+    .filter-row { display: flex; gap: 8px; margin-bottom: 16px; }
+    .filter-select { flex: 1; padding: 8px 12px; border: 1px solid var(--border); background: var(--bg3); color: var(--text2); border-radius: 6px; font-size: 12px; cursor: pointer; }
+
+    .modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; padding: 16px; }
+    .modal.show { display: flex; }
+    .modal-content { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; width: 100%; max-width: 400px; max-height: 80vh; overflow-y: auto; }
+    .modal-title { font-size: 16px; font-weight: 700; margin-bottom: 16px; color: var(--text); }
+    .modal-btn-group { display: flex; gap: 10px; margin: 12px 0; }
+    .modal-btn { flex: 1; padding: 12px; border: 1px solid var(--border); background: var(--bg3); color: var(--text2); border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 500; transition: all .12s; }
+    .modal-btn:active { transform: scale(0.96); }
+    .modal-btn.selected { background: var(--amber-bg); color: var(--amber); border-color: var(--amber-border); }
+    .modal-input { width: 100%; padding: 10px; border: 1px solid var(--border); background: var(--bg3); color: var(--text); border-radius: 8px; margin-bottom: 12px; font-size: 13px; }
+    .modal-actions { display: flex; gap: 10px; margin-top: 16px; }
+    .modal-actions button { flex: 1; padding: 12px; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; transition: all .12s; }
+    .modal-ok { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+    .modal-cancel { background: var(--bg3); color: var(--text3); border: 1px solid var(--border); }
+
+    .session-option { padding: 8px 10px; background: var(--bg3); border: 1px solid var(--border); border-radius: 6px; margin-bottom: 8px; cursor: pointer; font-size: 12px; transition: all .12s; }
+    .session-option:active { transform: scale(0.97); }
+    .session-option.selected { background: var(--amber-bg); border-color: var(--amber-border); color: var(--amber); }
   </style>
 </head>
 <body>
@@ -160,9 +159,19 @@
   <span class="header-count" id="header-count">0 boules</span>
 </div>
 
+<div class="session-bar">
+  <span class="session-label">Session:</span>
+  <div class="session-info">
+    <span class="session-badge" id="session-type-badge">Entraînement</span>
+    <span class="session-name" id="session-name-display">—</span>
+  </div>
+  <button class="session-btn" onclick="openSessionModal()">Changer</button>
+</div>
+
 <div class="tabs">
   <div class="tab active" onclick="showTab('saisie')">Saisie</div>
-  <div class="tab" onclick="showTab('stats')">Stats</div>
+  <div class="tab" onclick="showTab('stats-global')">Stats</div>
+  <div class="tab" onclick="showTab('stats-detail')">Par Partie</div>
   <div class="tab" onclick="showTab('log')">Historique</div>
 </div>
 
@@ -216,11 +225,19 @@
       </div>
     </div>
 
-    <button class="confirm-btn dim" id="btn-confirm" onclick="confirmEntry()">✓ Enregistrer la boule</button>
+    <button class="confirm-btn dim" id="btn-confirm" onclick="confirmEntry()">Enregistrer la boule</button>
   </div>
 
-  <!-- STATS -->
-  <div id="tab-stats" style="display:none">
+  <!-- STATS GLOBALES -->
+  <div id="tab-stats-global" style="display:none">
+    <div class="filter-row">
+      <select class="filter-select" id="global-filter" onchange="renderStatsGlobal()">
+        <option value="all">Tous les types</option>
+        <option value="training">Entraînements seulement</option>
+        <option value="match">Parties seulement</option>
+      </select>
+    </div>
+
     <div class="stats-grid">
       <div class="stat-card"><div class="stat-lbl">Total boules</div><div class="stat-val" id="s-total">0</div></div>
       <div class="stat-card"><div class="stat-lbl">Carreaux magueuls</div><div class="stat-val" id="s-carreaux">0</div><div class="stat-sub" id="s-carreaux-p">—</div></div>
@@ -229,15 +246,25 @@
     </div>
 
     <div class="sec-title">Résultats des tirs</div>
-    <div class="prog-item"><div class="prog-row"><span>Carreau magueul</span><span id="pt-carreau">0%</span></div><div class="prog-track"><div class="prog-fill" id="pb-carreau" style="background:#3dba78;width:0%"></div></div></div>
-    <div class="prog-item"><div class="prog-row"><span>Palet</span><span id="pt-pale">0%</span></div><div class="prog-track"><div class="prog-fill" id="pb-pale" style="background:#f07840;width:0%"></div></div></div>
-    <div class="prog-item"><div class="prog-row"><span>Poussée</span><span id="pt-poussee">0%</span></div><div class="prog-track"><div class="prog-fill" id="pb-poussee" style="background:#4a9eff;width:0%"></div></div></div>
-    <div class="prog-item"><div class="prog-row"><span>Ratée</span><span id="pt-rate">0%</span></div><div class="prog-track"><div class="prog-fill" id="pb-rate" style="background:#f05050;width:0%"></div></div></div>
+    <div class="prog-item"><div class="prog-row"><span>Carreau magueul</span><span id="pt-carreau">0%</span></div><div class="prog-track"><div class="prog-fill" id="pb-carreau" style="background:#7da87d;width:0%"></div></div></div>
+    <div class="prog-item"><div class="prog-row"><span>Palet</span><span id="pt-pale">0%</span></div><div class="prog-track"><div class="prog-fill" id="pb-pale" style="background:#c69b7a;width:0%"></div></div></div>
+    <div class="prog-item"><div class="prog-row"><span>Poussée</span><span id="pt-poussee">0%</span></div><div class="prog-track"><div class="prog-fill" id="pb-poussee" style="background:#7a9cc6;width:0%"></div></div></div>
+    <div class="prog-item"><div class="prog-row"><span>Ratée</span><span id="pt-rate">0%</span></div><div class="prog-track"><div class="prog-fill" id="pb-rate" style="background:#c67a7a;width:0%"></div></div></div>
 
     <div class="sec-title">Pointés : résultats × techniques</div>
-    <div id="crosstab"></div>
+    <div id="crosstab-global"></div>
 
     <button class="reset-btn" onclick="resetAll()">Réinitialiser toutes les données</button>
+  </div>
+
+  <!-- STATS PAR PARTIE -->
+  <div id="tab-stats-detail" style="display:none">
+    <div class="filter-row">
+      <select class="filter-select" id="match-selector" onchange="renderStatsDetail()">
+        <option value="">— Sélectionner une partie —</option>
+      </select>
+    </div>
+    <div id="stats-detail-content" class="no-data">Aucune partie sélectionnée</div>
   </div>
 
   <!-- LOG -->
@@ -250,9 +277,42 @@
 
 <div class="flash" id="flash"></div>
 
+<!-- SESSION MODAL -->
+<div class="modal" id="session-modal">
+  <div class="modal-content">
+    <div class="modal-title">Nouvelle Session</div>
+    
+    <div style="margin-bottom:16px;">
+      <div style="font-size:12px;color:var(--text3);margin-bottom:8px;font-weight:500;">Type</div>
+      <div class="modal-btn-group">
+        <button class="modal-btn selected" id="type-training" onclick="selectSessionType('training')">Entraînement</button>
+        <button class="modal-btn" id="type-match" onclick="selectSessionType('match')">Partie</button>
+      </div>
+    </div>
+
+    <div style="margin-bottom:16px;">
+      <div style="font-size:12px;color:var(--text3);margin-bottom:8px;font-weight:500;">Nom (optionnel)</div>
+      <input type="text" class="modal-input" id="session-name-input" placeholder="Équipe, lieu... (vide = auto)">
+    </div>
+
+    <div id="existing-sessions" style="margin-bottom:16px;">
+      <div style="font-size:12px;color:var(--text3);margin-bottom:8px;font-weight:500;">Sessions existantes</div>
+      <div id="sessions-list"></div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="modal-ok" onclick="createOrSelectSession()">Valider</button>
+      <button class="modal-cancel" onclick="closeSessionModal()">Annuler</button>
+    </div>
+  </div>
+</div>
+
 <script>
-var STORAGE_KEY = 'petanque_entries';
-var entries = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+var STORAGE_ENTRIES = 'petanque_entries';
+var STORAGE_SESSIONS = 'petanque_sessions';
+var entries = JSON.parse(localStorage.getItem(STORAGE_ENTRIES) || '[]');
+var sessions = JSON.parse(localStorage.getItem(STORAGE_SESSIONS) || '[]');
+var currentSessionId = null;
 var cur = {};
 
 var LABELS = {
@@ -269,20 +329,6 @@ var PRESULT_CLS = {simple:'rb-ok',difficile:'rb-ok',defendable:'rb-mid',nul:'rb-
 var TECHNIQUES = ['plombe','portee','demi','roulette'];
 var TECH_COLORS = {plombe:'#8f7ef0',portee:'#a898f8',demi:'#c4beff',roulette:'#ddd8ff'};
 
-function save() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
-  document.getElementById('header-count').textContent = entries.length + (entries.length > 1 ? ' boules' : ' boule');
-}
-
-function showTab(name) {
-  ['saisie','stats','log'].forEach(function(t,i){
-    document.querySelectorAll('.tab')[i].classList.toggle('active', t===name);
-    document.getElementById('tab-'+t).style.display = t===name ? '' : 'none';
-  });
-  if(name==='stats') renderStats();
-  if(name==='log') renderLog();
-}
-
 var pickMap = {
   type:     {ids:['btn-tir','btn-point'],     vals:['tir','point'],             cls:['sel-tir','sel-point']},
   contact:  {ids:['btn-touche','btn-rate'],   vals:['touche','rate'],           cls:['sel-ok','sel-bad']},
@@ -290,6 +336,84 @@ var pickMap = {
   presult:  {ids:['btn-simple','btn-difficile','btn-defendable','btn-nul','btn-mer'], vals:['simple','difficile','defendable','nul','mer'], cls:['sel-ok','sel-ok','sel-mid','sel-bad','sel-bad']},
   technique:{ids:['btn-plombe','btn-portee','btn-demi','btn-roulette'], vals:['plombe','portee','demi','roulette'], cls:['sel-tech','sel-tech','sel-tech','sel-tech']}
 };
+
+function generateId() { return 's_' + Date.now() + '_' + Math.random().toString(36).substr(2,9); }
+
+function saveData() {
+  localStorage.setItem(STORAGE_ENTRIES, JSON.stringify(entries));
+  localStorage.setItem(STORAGE_SESSIONS, JSON.stringify(sessions));
+  document.getElementById('header-count').textContent = entries.length + (entries.length > 1 ? ' boules' : ' boule');
+}
+
+function initSessions() {
+  if (!sessions.length) {
+    sessions.push({ id: generateId(), type:'training', name:'Session 1', ts: Date.now() });
+    currentSessionId = sessions[0].id;
+    saveData();
+  } else if (!currentSessionId) {
+    currentSessionId = sessions[0].id;
+  }
+  updateSessionDisplay();
+}
+
+function updateSessionDisplay() {
+  if (!currentSessionId) return;
+  var sess = sessions.find(function(s){ return s.id === currentSessionId; });
+  if (!sess) return;
+  document.getElementById('session-type-badge').textContent = sess.type === 'training' ? 'Entraînement' : 'Partie';
+  document.getElementById('session-type-badge').className = 'session-badge' + (sess.type === 'training' ? ' training' : '');
+  document.getElementById('session-name-display').textContent = sess.name || '—';
+}
+
+function openSessionModal() {
+  document.getElementById('session-modal').classList.add('show');
+  updateModalContent();
+}
+
+function closeSessionModal() {
+  document.getElementById('session-modal').classList.remove('show');
+}
+
+function selectSessionType(type) {
+  document.getElementById('type-training').classList.toggle('selected', type === 'training');
+  document.getElementById('type-match').classList.toggle('selected', type === 'match');
+}
+
+function updateModalContent() {
+  var matches = sessions.filter(function(s){ return s.type === 'match'; });
+  var html = '';
+  matches.forEach(function(s) {
+    html += '<div class="session-option' + (s.id === currentSessionId ? ' selected' : '') + '" onclick="selectExistingSession(\'' + s.id + '\')">' + s.name + '</div>';
+  });
+  document.getElementById('sessions-list').innerHTML = html || '<div style="font-size:12px;color:var(--text3);">Aucune partie</div>';
+  document.getElementById('session-name-input').value = '';
+  document.getElementById('type-match').classList.remove('selected');
+  document.getElementById('type-training').classList.add('selected');
+}
+
+function selectExistingSession(id) {
+  currentSessionId = id;
+  updateSessionDisplay();
+  saveData();
+  closeSessionModal();
+}
+
+function createOrSelectSession() {
+  var typeTraining = document.getElementById('type-training').classList.contains('selected');
+  var type = typeTraining ? 'training' : 'match';
+  var name = document.getElementById('session-name-input').value.trim();
+  
+  if (!name) {
+    name = type === 'training' ? 'Session ' + (sessions.length + 1) : 'Partie ' + (sessions.filter(function(s){ return s.type === 'match'; }).length + 1);
+  }
+  
+  var newSession = { id: generateId(), type: type, name: name, ts: Date.now() };
+  sessions.push(newSession);
+  currentSessionId = newSession.id;
+  saveData();
+  updateSessionDisplay();
+  closeSessionModal();
+}
 
 function pick(step, val) {
   cur[step] = val;
@@ -308,20 +432,18 @@ function updateBlocks() {
   dim('blk-effet',    !(isTir && cur.contact==='touche'));
   dim('blk-presult',  !isPt);
   dim('blk-tech',     !(isPt && cur.presult));
-  var ok = (isTir && cur.contact==='rate') ||
-           (isTir && cur.contact==='touche' && cur.effet) ||
-           (isPt && cur.presult && cur.technique);
-  var cb = document.getElementById('btn-confirm');
-  cb.classList.toggle('dim', !ok);
+  var ok = (isTir && cur.contact==='rate') || (isTir && cur.contact==='touche' && cur.effet) || (isPt && cur.presult && cur.technique);
+  document.getElementById('btn-confirm').classList.toggle('dim', !ok);
 }
 
-function dim(id, d) { document.getElementById(id).classList.toggle('dim',d); }
+function dim(id, d) { document.getElementById(id).classList.toggle('dim', d); }
 
 function confirmEntry() {
   var e = Object.assign({}, cur);
   e.ts = Date.now();
+  e.sessionId = currentSessionId;
   entries.push(e);
-  save();
+  saveData();
   showFlash(e);
   cur = {};
   document.querySelectorAll('.btn').forEach(function(b){ b.className='btn'; });
@@ -331,9 +453,7 @@ function confirmEntry() {
 }
 
 function showFlash(e) {
-  var msg = e.type==='tir'
-    ? (e.contact==='rate' ? 'Ratée' : LABELS[e.effet])
-    : (LABELS[e.presult] + ' · ' + LABELS[e.technique]);
+  var msg = e.type==='tir' ? (e.contact==='rate' ? 'Ratée' : LABELS[e.effet]) : (LABELS[e.presult] + ' · ' + LABELS[e.technique]);
   var bad = e.contact==='rate' || e.presult==='mer' || e.presult==='nul';
   var mid = e.presult==='defendable' || e.effet==='pale' || e.effet==='poussee';
   var el = document.getElementById('flash');
@@ -350,10 +470,20 @@ function setBar(pid, bid, val) {
   document.getElementById(bid).style.width = val+'%';
 }
 
-function renderStats() {
-  var tirs = entries.filter(function(e){ return e.type==='tir'; });
-  var pts  = entries.filter(function(e){ return e.type==='point'; });
-  var total = entries.length;
+function getFilteredEntries(filter) {
+  return entries.filter(function(e) {
+    if (filter === 'all') return true;
+    var sess = sessions.find(function(s){ return s.id === e.sessionId; });
+    return sess && sess.type === filter;
+  });
+}
+
+function renderStatsGlobal() {
+  var filter = document.getElementById('global-filter').value;
+  var filtered = getFilteredEntries(filter);
+  var tirs = filtered.filter(function(e){ return e.type==='tir'; });
+  var pts  = filtered.filter(function(e){ return e.type==='point'; });
+  var total = filtered.length;
   var carr = tirs.filter(function(e){ return e.effet==='carreau'; });
 
   document.getElementById('s-total').textContent = total;
@@ -369,7 +499,7 @@ function renderStats() {
   setBar('pt-poussee','pb-poussee', pct(tirs, function(e){ return e.effet==='poussee'; }));
   setBar('pt-rate','pb-rate',       pct(tirs, function(e){ return e.contact==='rate'; }));
 
-  var ct = document.getElementById('crosstab');
+  var ct = document.getElementById('crosstab-global');
   if (!pts.length) { ct.innerHTML = '<p class="no-data">Aucun pointé enregistré.</p>'; return; }
 
   var html = '';
@@ -401,7 +531,51 @@ function renderStats() {
   ct.innerHTML = html;
 }
 
-function toggleBlock(id) { document.getElementById(id).classList.toggle('collapsed'); }
+function renderStatsDetail() {
+  var matchId = document.getElementById('match-selector').value;
+  if (!matchId) { document.getElementById('stats-detail-content').innerHTML = '<p class="no-data">Aucune partie sélectionnée</p>'; return; }
+  
+  var filtered = entries.filter(function(e){ return e.sessionId === matchId; });
+  var tirs = filtered.filter(function(e){ return e.type==='tir'; });
+  var pts  = filtered.filter(function(e){ return e.type==='point'; });
+  var total = filtered.length;
+  var carr = tirs.filter(function(e){ return e.effet==='carreau'; });
+
+  var html = '<div class="stats-grid">';
+  html += '<div class="stat-card"><div class="stat-lbl">Total boules</div><div class="stat-val">'+total+'</div></div>';
+  html += '<div class="stat-card"><div class="stat-lbl">Carreaux magueuls</div><div class="stat-val">'+carr.length+'</div><div class="stat-sub">' + (tirs.length ? Math.round(carr.length/tirs.length*100)+'% des tirs' : '—') + '</div></div>';
+  html += '<div class="stat-card"><div class="stat-lbl">Tirs</div><div class="stat-val">'+tirs.length+'</div><div class="stat-sub">' + (total ? Math.round(tirs.length/total*100)+'%' : '—') + '</div></div>';
+  html += '<div class="stat-card"><div class="stat-lbl">Pointés</div><div class="stat-val">'+pts.length+'</div><div class="stat-sub">' + (total ? Math.round(pts.length/total*100)+'%' : '—') + '</div></div>';
+  html += '</div>';
+
+  html += '<div class="sec-title">Résultats des tirs</div>';
+  html += '<div class="prog-item"><div class="prog-row"><span>Carreau magueul</span><span>'+pct(tirs,function(e){return e.effet==='carreau';})+' %</span></div><div class="prog-track"><div class="prog-fill" style="background:#7da87d;width:'+pct(tirs,function(e){return e.effet==='carreau';})+'%"></div></div></div>';
+  html += '<div class="prog-item"><div class="prog-row"><span>Palet</span><span>'+pct(tirs,function(e){return e.effet==='pale';})+'%</span></div><div class="prog-track"><div class="prog-fill" style="background:#c69b7a;width:'+pct(tirs,function(e){return e.effet==='pale';})+'%"></div></div></div>';
+  html += '<div class="prog-item"><div class="prog-row"><span>Poussée</span><span>'+pct(tirs,function(e){return e.effet==='poussee';})+'%</span></div><div class="prog-track"><div class="prog-fill" style="background:#7a9cc6;width:'+pct(tirs,function(e){return e.effet==='poussee';})+'%"></div></div></div>';
+  html += '<div class="prog-item"><div class="prog-row"><span>Ratée</span><span>'+pct(tirs,function(e){return e.contact==='rate';})+'%</span></div><div class="prog-track"><div class="prog-fill" style="background:#c67a7a;width:'+pct(tirs,function(e){return e.contact==='rate';})+'%"></div></div></div>';
+
+  document.getElementById('stats-detail-content').innerHTML = html;
+}
+
+function showTab(name) {
+  var tabs = ['saisie','stats-global','stats-detail','log'];
+  tabs.forEach(function(t,i){
+    document.querySelectorAll('.tab')[i].classList.toggle('active', t===name);
+    document.getElementById('tab-'+t).style.display = t===name ? '' : 'none';
+  });
+  if(name==='stats-global') renderStatsGlobal();
+  if(name==='stats-detail') {
+    var selector = document.getElementById('match-selector');
+    var matches = sessions.filter(function(s){ return s.type === 'match'; });
+    var currentHtml = selector.innerHTML;
+    var newHtml = '<option value="">— Sélectionner une partie —</option>';
+    matches.forEach(function(s){
+      newHtml += '<option value="' + s.id + '">' + s.name + '</option>';
+    });
+    if (newHtml !== currentHtml) selector.innerHTML = newHtml;
+  }
+  if(name==='log') renderLog();
+}
 
 function renderLog() {
   var el = document.getElementById('log-list');
@@ -421,29 +595,28 @@ function renderLog() {
     }
     var d = e.ts ? new Date(e.ts) : null;
     var time = d ? (d.getHours()+'h'+String(d.getMinutes()).padStart(2,'0')) : '';
-    row += '<span class="log-num">'+(time?time+' · ':'')+('#'+(i+1))+'</span>';
+    row += '<span class="log-num">'+(time?time+' · ':'')+ '#'+(i+1)+'</span>';
     html += '<div class="log-item">'+row+'</div>';
   }
   el.innerHTML = html;
 }
 
+function toggleBlock(id) { document.getElementById(id).classList.toggle('collapsed'); }
+
 function resetAll() {
   if (!entries.length || confirm('Effacer toutes les données ?')) {
     entries = [];
-    save();
-    renderStats();
-    renderLog();
+    sessions = [];
+    currentSessionId = null;
+    saveData();
+    initSessions();
+    showTab('saisie');
   }
 }
 
-// Init header count
-document.getElementById('header-count').textContent = entries.length + (entries.length > 1 ? ' boules' : ' boule');
+initSessions();
+if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js'); }
 </script>
 
-<script>
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('sw.js');
-}
-</script>
 </body>
 </html>
