@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#1a1a2e">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Pétanque Stats">
+  <meta name="description" content="Tracker de stats pour la pétanque">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <title>Pétanque Stats</title>
+  <style>
+    :root {
+      --bg: #0f0f1a;
+      --bg2: #1a1a2e;
+      --bg3: #252540;
+      --border: rgba(255,255,255,0.1);
+      --border2: rgba(255,255,255,0.18);
+      --text: #f0f0f8;
+      --text2: #9898b8;
+      --text3: #6060a0;
+      --amber: #f0a500;
+      --amber-bg: rgba(240,165,0,0.15);
+      --amber-border: rgba(240,165,0,0.4);
+      --blue: #4a9eff;
+      --blue-bg: rgba(74,158,255,0.12);
+      --blue-border: rgba(74,158,255,0.4);
+      --green: #3dba78;
+      --green-bg: rgba(61,186,120,0.12);
+      --green-border: rgba(61,186,120,0.4);
+      --red: #f05050;
+      --red-bg: rgba(240,80,80,0.12);
+      --red-border: rgba(240,80,80,0.4);
+      --purple: #8f7ef0;
+      --purple-bg: rgba(143,126,240,0.12);
+      --purple-border: rgba(143,126,240,0.4);
+      --orange: #f07840;
+      --orange-bg: rgba(240,120,64,0.12);
+      --orange-border: rgba(240,120,64,0.4);
+      --radius: 12px;
+      --radius-sm: 8px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    html, body { height: 100%; background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; overflow: hidden; }
+    body { display: flex; flex-direction: column; }
+
+    /* HEADER */
+    .header { background: var(--bg2); border-bottom: 1px solid var(--border); padding: 14px 16px 12px; flex-shrink: 0; display: flex; align-items: center; gap: 10px; }
+    .header-icon { font-size: 22px; }
+    .header-title { font-size: 17px; font-weight: 700; letter-spacing: -0.3px; }
+    .header-count { margin-left: auto; background: var(--bg3); border: 1px solid var(--border); border-radius: 20px; padding: 4px 12px; font-size: 12px; color: var(--text2); }
+
+    /* TABS */
+    .tabs { display: flex; background: var(--bg2); border-bottom: 1px solid var(--border); flex-shrink: 0; }
+    .tab { flex: 1; padding: 12px 4px; font-size: 13px; font-weight: 500; color: var(--text3); text-align: center; cursor: pointer; border-bottom: 2px solid transparent; transition: all .15s; }
+    .tab.active { color: var(--amber); border-bottom-color: var(--amber); }
+
+    /* SCROLL AREA */
+    .content { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 16px; }
+
+    /* STEP BLOCKS */
+    .step-block { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; margin-bottom: 12px; transition: opacity .2s; }
+    .step-block.dim { opacity: 0.35; pointer-events: none; }
+    .step-lbl { font-size: 10px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 10px; }
+    .btns { display: flex; gap: 8px; flex-wrap: wrap; }
+    .btn {
+      flex: 1; min-width: 100px; padding: 13px 8px;
+      border: 1px solid var(--border); border-radius: var(--radius-sm);
+      background: var(--bg3); color: var(--text2);
+      font-size: 13px; font-weight: 500; cursor: pointer;
+      text-align: center; line-height: 1.35; transition: all .12s;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+    .btn:active { transform: scale(0.96); }
+    .btn.sel-tir    { background: var(--amber-bg); border-color: var(--amber-border); color: var(--amber); }
+    .btn.sel-point  { background: var(--blue-bg);  border-color: var(--blue-border);  color: var(--blue); }
+    .btn.sel-ok     { background: var(--green-bg); border-color: var(--green-border); color: var(--green); }
+    .btn.sel-bad    { background: var(--red-bg);   border-color: var(--red-border);   color: var(--red); }
+    .btn.sel-mid    { background: var(--orange-bg);border-color: var(--orange-border);color: var(--orange); }
+    .btn.sel-tech   { background: var(--purple-bg);border-color: var(--purple-border);color: var(--purple); }
+
+    .confirm-btn {
+      width: 100%; padding: 15px; border-radius: var(--radius);
+      border: 1px solid var(--green-border); background: var(--green-bg);
+      color: var(--green); font-size: 15px; font-weight: 600; cursor: pointer;
+      margin-top: 4px; transition: all .12s;
+    }
+    .confirm-btn:active { transform: scale(0.98); }
+    .confirm-btn.dim { opacity: 0.3; pointer-events: none; }
+
+    /* FLASH */
+    .flash {
+      position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+      padding: 10px 24px; border-radius: 24px; font-size: 13px; font-weight: 600;
+      color: #fff; opacity: 0; pointer-events: none; z-index: 999;
+      transition: opacity .25s; white-space: nowrap; max-width: 90vw; text-align: center;
+    }
+    .flash.show { opacity: 1; }
+
+    /* STATS */
+    .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+    .stat-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; }
+    .stat-lbl { font-size: 11px; color: var(--text3); margin-bottom: 6px; }
+    .stat-val { font-size: 26px; font-weight: 700; color: var(--text); }
+    .stat-sub { font-size: 11px; color: var(--text3); margin-top: 3px; }
+    .sec-title { font-size: 10px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: .08em; margin: 18px 0 10px; }
+
+    /* PROGRESS BARS */
+    .prog-item { margin-bottom: 10px; }
+    .prog-row { display: flex; justify-content: space-between; font-size: 12px; color: var(--text2); margin-bottom: 5px; }
+    .prog-track { height: 5px; border-radius: 3px; background: var(--bg3); overflow: hidden; }
+    .prog-fill { height: 100%; border-radius: 3px; transition: width .5s cubic-bezier(.4,0,.2,1); }
+
+    /* CROSSTAB */
+    .result-block { border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 10px; overflow: hidden; }
+    .result-header { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; background: var(--bg2); cursor: pointer; user-select: none; }
+    .result-left { display: flex; align-items: center; gap: 8px; }
+    .rbadge { font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 6px; }
+    .rb-ok   { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+    .rb-mid  { background: var(--orange-bg); color: var(--orange); border: 1px solid var(--orange-border); }
+    .rb-ko   { background: var(--red-bg); color: var(--red); border: 1px solid var(--red-border); }
+    .rcount  { font-size: 12px; color: var(--text3); }
+    .chevron { font-size: 12px; color: var(--text3); transition: transform .2s; }
+    .collapsed .chevron { transform: rotate(-90deg); }
+    .tech-list { padding: 12px 14px; background: var(--bg); border-top: 1px solid var(--border); }
+    .collapsed .tech-list { display: none; }
+    .tech-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+    .tech-name { font-size: 12px; color: var(--text2); width: 90px; flex-shrink: 0; }
+    .tech-bar-wrap { flex: 1; height: 5px; background: var(--bg3); border-radius: 3px; overflow: hidden; }
+    .tech-bar-fill { height: 100%; border-radius: 3px; transition: width .5s; }
+    .tech-pct { font-size: 12px; color: var(--text2); min-width: 34px; text-align: right; }
+    .tech-n { font-size: 11px; color: var(--text3); min-width: 28px; text-align: right; }
+    .empty-note { font-size: 12px; color: var(--text3); font-style: italic; padding: 2px 0; }
+
+    /* LOG */
+    .log-item { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+    .badge { font-size: 11px; font-weight: 600; padding: 4px 9px; border-radius: 6px; }
+    .b-tir   { background: var(--amber-bg); color: var(--amber); }
+    .b-point { background: var(--blue-bg); color: var(--blue); }
+    .b-ok    { background: var(--green-bg); color: var(--green); }
+    .b-ko    { background: var(--red-bg); color: var(--red); }
+    .b-mid   { background: var(--orange-bg); color: var(--orange); }
+    .b-tech  { background: var(--purple-bg); color: var(--purple); }
+    .log-num { font-size: 11px; color: var(--text3); margin-left: auto; }
+
+    .reset-btn { width: 100%; padding: 12px; border: 1px solid var(--border2); border-radius: var(--radius-sm); background: transparent; color: var(--text3); font-size: 13px; cursor: pointer; margin-top: 16px; }
+    .no-data { text-align: center; color: var(--text3); font-size: 13px; padding: 32px 0; font-style: italic; }
+
+    /* safe area for notch phones */
+    .content { padding-bottom: calc(16px + env(safe-area-inset-bottom)); }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <span class="header-icon">🎯</span>
+  <span class="header-title">Pétanque Stats</span>
+  <span class="header-count" id="header-count">0 boules</span>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="showTab('saisie')">Saisie</div>
+  <div class="tab" onclick="showTab('stats')">Stats</div>
+  <div class="tab" onclick="showTab('log')">Historique</div>
+</div>
+
+<div class="content" id="content">
+
+  <!-- SAISIE -->
+  <div id="tab-saisie">
+    <div class="step-block" id="blk-type">
+      <div class="step-lbl">1 · Type de boule</div>
+      <div class="btns">
+        <div class="btn" id="btn-tir" onclick="pick('type','tir')">🎯 Tirée</div>
+        <div class="btn" id="btn-point" onclick="pick('type','point')">🎪 Pointée</div>
+      </div>
+    </div>
+
+    <div class="step-block dim" id="blk-contact">
+      <div class="step-lbl">2 · Contact</div>
+      <div class="btns">
+        <div class="btn" id="btn-touche" onclick="pick('contact','touche')">✓ Touchée</div>
+        <div class="btn" id="btn-rate" onclick="pick('contact','rate')">✗ Ratée</div>
+      </div>
+    </div>
+
+    <div class="step-block dim" id="blk-effet">
+      <div class="step-lbl">3 · Résultat du contact</div>
+      <div class="btns">
+        <div class="btn" id="btn-poussee" onclick="pick('effet','poussee')">Poussée</div>
+        <div class="btn" id="btn-pale" onclick="pick('effet','pale')">Pâlée</div>
+        <div class="btn" id="btn-carreau" onclick="pick('effet','carreau')">Carreau sec</div>
+      </div>
+    </div>
+
+    <div class="step-block dim" id="blk-presult">
+      <div class="step-lbl">2 · Qualité du pointé</div>
+      <div class="btns">
+        <div class="btn" id="btn-simple" onclick="pick('presult','simple')">Reprise simple réussie</div>
+        <div class="btn" id="btn-difficile" onclick="pick('presult','difficile')">Reprise difficile réussie</div>
+        <div class="btn" id="btn-defendable" onclick="pick('presult','defendable')">Défendable</div>
+        <div class="btn" id="btn-nul" onclick="pick('presult','nul')">Nul indéfendable</div>
+        <div class="btn" style="min-width:100%" id="btn-mer" onclick="pick('presult','mer')">À la mer 🌊</div>
+      </div>
+    </div>
+
+    <div class="step-block dim" id="blk-tech">
+      <div class="step-lbl">3 · Technique</div>
+      <div class="btns">
+        <div class="btn" id="btn-plombe" onclick="pick('technique','plombe')">Plombée</div>
+        <div class="btn" id="btn-portee" onclick="pick('technique','portee')">Portée</div>
+        <div class="btn" id="btn-demi" onclick="pick('technique','demi')">Demi-portée</div>
+        <div class="btn" id="btn-roulette" onclick="pick('technique','roulette')">Roulette</div>
+      </div>
+    </div>
+
+    <button class="confirm-btn dim" id="btn-confirm" onclick="confirmEntry()">✓ Enregistrer la boule</button>
+  </div>
+
+  <!-- STATS -->
+  <div id="tab-stats" style="display:none">
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-lbl">Total boules</div><div class="stat-val" id="s-total">0</div></div>
+      <div class="stat-card"><div class="stat-lbl">Carreaux secs</div><div class="stat-val" id="s-carreaux">0</div><div class="stat-sub" id="s-carreaux-p">—</div></div>
+      <div class="stat-card"><div class="stat-lbl">Tirs</div><div class="stat-val" id="s-tirs">0</div><div class="stat-sub" id="s-tirs-p">—</div></div>
+      <div class="stat-card"><div class="stat-lbl">Pointés</div><div class="stat-val" id="s-points">0</div><div class="stat-sub" id="s-points-p">—</div></div>
+    </div>
+
+    <div class="sec-title">Résultats des tirs</div>
+    <div class="prog-item"><div class="prog-row"><span>Carreau sec</span><span id="pt-carreau">0%</span></div><div class="prog-track"><div class="prog-fill" id="pb-carreau" style="background:#3dba78;width:0%"></div></div></div>
+    <div class="prog-item"><div class="prog-row"><span>Pâlée</span><span id="pt-pale">0%</span></div><div class="prog-track"><div class="prog-fill" id="pb-pale" style="background:#f07840;width:0%"></div></div></div>
+    <div class="prog-item"><div class="prog-row"><span>Poussée</span><span id="pt-poussee">0%</span></div><div class="prog-track"><div class="prog-fill" id="pb-poussee" style="background:#4a9eff;width:0%"></div></div></div>
+    <div class="prog-item"><div class="prog-row"><span>Ratée</span><span id="pt-rate">0%</span></div><div class="prog-track"><div class="prog-fill" id="pb-rate" style="background:#f05050;width:0%"></div></div></div>
+
+    <div class="sec-title">Pointés : résultats × techniques</div>
+    <div id="crosstab"></div>
+
+    <button class="reset-btn" onclick="resetAll()">🗑 Réinitialiser toutes les données</button>
+  </div>
+
+  <!-- LOG -->
+  <div id="tab-log" style="display:none">
+    <div id="log-list"></div>
+    <button class="reset-btn" onclick="resetAll()">🗑 Réinitialiser toutes les données</button>
+  </div>
+
+</div>
+
+<div class="flash" id="flash"></div>
+
+<script>
+var STORAGE_KEY = 'petanque_entries';
+var entries = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+var cur = {};
+
+var LABELS = {
+  tir:'Tir', point:'Pointé',
+  touche:'Touchée', rate:'Ratée',
+  poussee:'Poussée', pale:'Pâlée', carreau:'Carreau sec',
+  simple:'Reprise simple', difficile:'Reprise difficile', defendable:'Défendable',
+  nul:'Nul indéfendable', mer:'À la mer',
+  plombe:'Plombée', portee:'Portée', demi:'Demi-portée', roulette:'Roulette'
+};
+
+var PRESULTS = ['simple','difficile','defendable','nul','mer'];
+var PRESULT_CLS = {simple:'rb-ok',difficile:'rb-ok',defendable:'rb-mid',nul:'rb-ko',mer:'rb-ko'};
+var TECHNIQUES = ['plombe','portee','demi','roulette'];
+var TECH_COLORS = {plombe:'#8f7ef0',portee:'#a898f8',demi:'#c4beff',roulette:'#ddd8ff'};
+
+function save() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+  document.getElementById('header-count').textContent = entries.length + (entries.length > 1 ? ' boules' : ' boule');
+}
+
+function showTab(name) {
+  ['saisie','stats','log'].forEach(function(t,i){
+    document.querySelectorAll('.tab')[i].classList.toggle('active', t===name);
+    document.getElementById('tab-'+t).style.display = t===name ? '' : 'none';
+  });
+  if(name==='stats') renderStats();
+  if(name==='log') renderLog();
+}
+
+var pickMap = {
+  type:     {ids:['btn-tir','btn-point'],     vals:['tir','point'],             cls:['sel-tir','sel-point']},
+  contact:  {ids:['btn-touche','btn-rate'],   vals:['touche','rate'],           cls:['sel-ok','sel-bad']},
+  effet:    {ids:['btn-poussee','btn-pale','btn-carreau'], vals:['poussee','pale','carreau'], cls:['sel-mid','sel-mid','sel-ok']},
+  presult:  {ids:['btn-simple','btn-difficile','btn-defendable','btn-nul','btn-mer'], vals:['simple','difficile','defendable','nul','mer'], cls:['sel-ok','sel-ok','sel-mid','sel-bad','sel-bad']},
+  technique:{ids:['btn-plombe','btn-portee','btn-demi','btn-roulette'], vals:['plombe','portee','demi','roulette'], cls:['sel-tech','sel-tech','sel-tech','sel-tech']}
+};
+
+function pick(step, val) {
+  cur[step] = val;
+  var m = pickMap[step];
+  m.ids.forEach(function(id,i){
+    var el = document.getElementById(id);
+    if(!el) return;
+    el.className = 'btn' + (m.vals[i]===val ? ' '+m.cls[i] : '');
+  });
+  updateBlocks();
+}
+
+function updateBlocks() {
+  var isTir = cur.type==='tir', isPt = cur.type==='point';
+  dim('blk-contact',  !isTir);
+  dim('blk-effet',    !(isTir && cur.contact==='touche'));
+  dim('blk-presult',  !isPt);
+  dim('blk-tech',     !(isPt && cur.presult));
+  var ok = (isTir && cur.contact==='rate') ||
+           (isTir && cur.contact==='touche' && cur.effet) ||
+           (isPt && cur.presult && cur.technique);
+  var cb = document.getElementById('btn-confirm');
+  cb.classList.toggle('dim', !ok);
+}
+
+function dim(id, d) { document.getElementById(id).classList.toggle('dim',d); }
+
+function confirmEntry() {
+  var e = Object.assign({}, cur);
+  e.ts = Date.now();
+  entries.push(e);
+  save();
+  showFlash(e);
+  cur = {};
+  document.querySelectorAll('.btn').forEach(function(b){ b.className='btn'; });
+  ['blk-contact','blk-effet','blk-presult','blk-tech'].forEach(function(id){ dim(id,true); });
+  document.getElementById('btn-confirm').classList.add('dim');
+  document.getElementById('content').scrollTo({top:0, behavior:'smooth'});
+}
+
+function showFlash(e) {
+  var msg = e.type==='tir'
+    ? ('🎯 ' + (e.contact==='rate' ? 'Ratée' : LABELS[e.effet]))
+    : ('🎪 ' + LABELS[e.presult] + ' · ' + LABELS[e.technique]);
+  var bad = e.contact==='rate' || e.presult==='mer' || e.presult==='nul';
+  var mid = e.presult==='defendable' || e.effet==='pale' || e.effet==='poussee';
+  var el = document.getElementById('flash');
+  el.textContent = msg;
+  el.style.background = bad ? '#a02020' : mid ? '#a05010' : '#1a7a48';
+  el.classList.add('show');
+  setTimeout(function(){ el.classList.remove('show'); }, 1600);
+}
+
+function pct(arr, fn) { return arr.length ? Math.round(arr.filter(fn).length/arr.length*100) : 0; }
+
+function setBar(pid, bid, val) {
+  document.getElementById(pid).textContent = val+'%';
+  document.getElementById(bid).style.width = val+'%';
+}
+
+function renderStats() {
+  var tirs = entries.filter(function(e){ return e.type==='tir'; });
+  var pts  = entries.filter(function(e){ return e.type==='point'; });
+  var total = entries.length;
+  var carr = tirs.filter(function(e){ return e.effet==='carreau'; });
+
+  document.getElementById('s-total').textContent = total;
+  document.getElementById('s-tirs').textContent = tirs.length;
+  document.getElementById('s-tirs-p').textContent = total ? Math.round(tirs.length/total*100)+'% des boules' : '—';
+  document.getElementById('s-points').textContent = pts.length;
+  document.getElementById('s-points-p').textContent = total ? Math.round(pts.length/total*100)+'% des boules' : '—';
+  document.getElementById('s-carreaux').textContent = carr.length;
+  document.getElementById('s-carreaux-p').textContent = tirs.length ? Math.round(carr.length/tirs.length*100)+'% des tirs' : '—';
+
+  setBar('pt-carreau','pb-carreau', pct(tirs, function(e){ return e.effet==='carreau'; }));
+  setBar('pt-pale','pb-pale',       pct(tirs, function(e){ return e.effet==='pale'; }));
+  setBar('pt-poussee','pb-poussee', pct(tirs, function(e){ return e.effet==='poussee'; }));
+  setBar('pt-rate','pb-rate',       pct(tirs, function(e){ return e.contact==='rate'; }));
+
+  var ct = document.getElementById('crosstab');
+  if (!pts.length) { ct.innerHTML = '<p class="no-data">Aucun pointé enregistré.</p>'; return; }
+
+  var html = '';
+  PRESULTS.forEach(function(pr) {
+    var sub = pts.filter(function(e){ return e.presult===pr; });
+    var cls = PRESULT_CLS[pr];
+    html += '<div class="result-block'+(sub.length===0?' collapsed':'')+'" id="rb-'+pr+'">';
+    html += '<div class="result-header" onclick="toggleBlock(\'rb-'+pr+'\')">';
+    html += '<div class="result-left"><span class="rbadge '+cls+'">'+LABELS[pr]+'</span>';
+    html += '<span class="rcount">'+sub.length+' boule'+(sub.length>1?'s':'')+'</span></div>';
+    html += '<span class="chevron">▾</span></div>';
+    html += '<div class="tech-list">';
+    if (!sub.length) {
+      html += '<p class="empty-note">Aucune boule pour ce résultat.</p>';
+    } else {
+      TECHNIQUES.forEach(function(t) {
+        var n = sub.filter(function(e){ return e.technique===t; }).length;
+        var p = Math.round(n/sub.length*100);
+        html += '<div class="tech-row">';
+        html += '<span class="tech-name">'+LABELS[t]+'</span>';
+        html += '<div class="tech-bar-wrap"><div class="tech-bar-fill" style="width:'+p+'%;background:'+TECH_COLORS[t]+'"></div></div>';
+        html += '<span class="tech-pct">'+p+'%</span>';
+        html += '<span class="tech-n">('+n+')</span>';
+        html += '</div>';
+      });
+    }
+    html += '</div></div>';
+  });
+  ct.innerHTML = html;
+}
+
+function toggleBlock(id) { document.getElementById(id).classList.toggle('collapsed'); }
+
+function renderLog() {
+  var el = document.getElementById('log-list');
+  if (!entries.length) { el.innerHTML = '<p class="no-data">Aucune boule enregistrée.</p>'; return; }
+  var html = '';
+  for (var i=entries.length-1; i>=0; i--) {
+    var e = entries[i];
+    var tc = e.type==='tir' ? 'b-tir' : 'b-point';
+    var row = '<span class="badge '+tc+'">'+(e.type==='tir'?'Tir':'Pointé')+'</span> ';
+    if (e.type==='tir') {
+      var rc = e.contact==='rate' ? 'b-ko' : e.effet==='carreau' ? 'b-ok' : 'b-mid';
+      row += '<span class="badge '+rc+'">'+(e.contact==='rate'?'Ratée':LABELS[e.effet])+'</span>';
+    } else {
+      var rc2 = (e.presult==='simple'||e.presult==='difficile') ? 'b-ok' : e.presult==='defendable' ? 'b-mid' : 'b-ko';
+      row += '<span class="badge '+rc2+'">'+LABELS[e.presult]+'</span> ';
+      row += '<span class="badge b-tech">'+LABELS[e.technique]+'</span>';
+    }
+    var d = e.ts ? new Date(e.ts) : null;
+    var time = d ? (d.getHours()+'h'+String(d.getMinutes()).padStart(2,'0')) : '';
+    row += '<span class="log-num">'+(time?time+' · ':'')+('#'+(i+1))+'</span>';
+    html += '<div class="log-item">'+row+'</div>';
+  }
+  el.innerHTML = html;
+}
+
+function resetAll() {
+  if (!entries.length || confirm('Effacer toutes les données ?')) {
+    entries = [];
+    save();
+    renderStats();
+    renderLog();
+  }
+}
+
+// Init header count
+document.getElementById('header-count').textContent = entries.length + (entries.length > 1 ? ' boules' : ' boule');
+</script>
+
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js');
+}
+</script>
+</body>
+</html>
