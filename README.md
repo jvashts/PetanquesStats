@@ -25,9 +25,12 @@ Suivi des performances en pétanque, installable sur iPhone et Android.
 1. Dans ton dépôt, clique **"Add file" → "Upload files"**
 2. Glisse-dépose **tous les fichiers** de ce dossier :
    - `index.html`
+   - `styles.css`
+   - `app.js`
    - `manifest.json`
    - `sw.js`
    - le dossier `icons/` avec `icon-192.png` et `icon-512.png`
+   - (optionnel) `scripts/gen-icons.ps1` pour régénérer les icônes en local
 3. Clique **"Commit changes"**
 
 ### Étape 3 — Activer GitHub Pages
