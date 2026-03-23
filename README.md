@@ -1,10 +1,10 @@
-# 🎯 Pétanque Stats — Web App
+# Boules Tracker — Web App
 
-Tracker de statistiques pour la pétanque, installable sur iPhone et Android.
+Suivi des performances en pétanque, installable sur iPhone et Android.
 
 ## Fonctionnalités
 
-- **Saisie rapide** : tir (touchée/ratée → poussée/pâlée/carreau sec) ou pointé (qualité × technique)
+- **Saisie rapide** : tir (touchée/ratée → poussée/pâlée/carreau magueul) ou pointé (qualité × technique)
 - **Stats complètes** : taux de carreaux, résultats des tirs, croisement résultats × techniques pour les pointés
 - **Historique** avec horodatage
 - **Données sauvegardées** sur l'appareil (localStorage) — fonctionne hors ligne
@@ -17,7 +17,7 @@ Tracker de statistiques pour la pétanque, installable sur iPhone et Android.
 ### Étape 1 — Créer un dépôt GitHub
 1. Va sur [github.com](https://github.com) → connecte-toi ou crée un compte
 2. Clique sur **"New repository"**
-3. Nom : `petanque-stats` (ou ce que tu veux)
+3. Nom : `boules-tracker` (ou ce que tu veux)
 4. Laisse en **Public**, coche **"Add a README file"**
 5. Clique **"Create repository"**
 
@@ -38,7 +38,7 @@ Tracker de statistiques pour la pétanque, installable sur iPhone et Android.
 5. Clique **"Save"**
 
 Après ~1 minute, ton app est en ligne à :
-`https://TON-PSEUDO.github.io/petanque-stats/`
+`https://TON-PSEUDO.github.io/boules-tracker/`
 
 ---
 

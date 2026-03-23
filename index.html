@@ -6,11 +6,11 @@
   <meta name="theme-color" content="#1a1a2e">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Pétanque Stats">
-  <meta name="description" content="Tracker de stats pour la pétanque">
+  <meta name="apple-mobile-web-app-title" content="Boules Tracker">
+  <meta name="description" content="Suivi des performances en pétanque">
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icons/icon-192.png">
-  <title>Pétanque Stats</title>
+  <title>Boules Tracker</title>
   <style>
     :root {
       --bg: #0f0f1a;
@@ -21,24 +21,24 @@
       --text: #f0f0f8;
       --text2: #9898b8;
       --text3: #6060a0;
-      --amber: #f0a500;
-      --amber-bg: rgba(240,165,0,0.15);
-      --amber-border: rgba(240,165,0,0.4);
-      --blue: #4a9eff;
-      --blue-bg: rgba(74,158,255,0.12);
-      --blue-border: rgba(74,158,255,0.4);
-      --green: #3dba78;
-      --green-bg: rgba(61,186,120,0.12);
-      --green-border: rgba(61,186,120,0.4);
-      --red: #f05050;
-      --red-bg: rgba(240,80,80,0.12);
-      --red-border: rgba(240,80,80,0.4);
-      --purple: #8f7ef0;
-      --purple-bg: rgba(143,126,240,0.12);
-      --purple-border: rgba(143,126,240,0.4);
-      --orange: #f07840;
-      --orange-bg: rgba(240,120,64,0.12);
-      --orange-border: rgba(240,120,64,0.4);
+      --amber: #d4a574;
+      --amber-bg: rgba(212,165,116,0.15);
+      --amber-border: rgba(212,165,116,0.4);
+      --blue: #7a9cc6;
+      --blue-bg: rgba(122,156,198,0.12);
+      --blue-border: rgba(122,156,198,0.4);
+      --green: #7da87d;
+      --green-bg: rgba(125,168,125,0.12);
+      --green-border: rgba(125,168,125,0.4);
+      --red: #c67a7a;
+      --red-bg: rgba(198,122,122,0.12);
+      --red-border: rgba(198,122,122,0.4);
+      --purple: #a694c6;
+      --purple-bg: rgba(166,148,198,0.12);
+      --purple-border: rgba(166,148,198,0.4);
+      --orange: #c69b7a;
+      --orange-bg: rgba(198,155,122,0.12);
+      --orange-border: rgba(198,155,122,0.4);
       --radius: 12px;
       --radius-sm: 8px;
     }
@@ -66,11 +66,11 @@
     .step-lbl { font-size: 10px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 10px; }
     .btns { display: flex; gap: 8px; flex-wrap: wrap; }
     .btn {
-      flex: 1; min-width: 100px; padding: 13px 8px;
+      flex: 1; min-width: 100px; padding: 16px 12px;
       border: 1px solid var(--border); border-radius: var(--radius-sm);
       background: var(--bg3); color: var(--text2);
-      font-size: 13px; font-weight: 500; cursor: pointer;
-      text-align: center; line-height: 1.35; transition: all .12s;
+      font-size: 14px; font-weight: 500; cursor: pointer;
+      text-align: center; line-height: 1.3; transition: all .12s;
       -webkit-tap-highlight-color: transparent;
       user-select: none;
     }
@@ -83,9 +83,9 @@
     .btn.sel-tech   { background: var(--purple-bg);border-color: var(--purple-border);color: var(--purple); }
 
     .confirm-btn {
-      width: 100%; padding: 15px; border-radius: var(--radius);
-      border: 1px solid var(--green-border); background: var(--green-bg);
-      color: var(--green); font-size: 15px; font-weight: 600; cursor: pointer;
+      width: 100%; padding: 16px; border-radius: var(--radius);
+      border: 2px solid var(--green-border); background: var(--green-bg);
+      color: var(--green); font-size: 16px; font-weight: 600; cursor: pointer;
       margin-top: 4px; transition: all .12s;
     }
     .confirm-btn:active { transform: scale(0.98); }
@@ -156,8 +156,7 @@
 <body>
 
 <div class="header">
-  <span class="header-icon">🎯</span>
-  <span class="header-title">Pétanque Stats</span>
+  <span class="header-title">Boules Tracker</span>
   <span class="header-count" id="header-count">0 boules</span>
 </div>
 
@@ -174,16 +173,16 @@
     <div class="step-block" id="blk-type">
       <div class="step-lbl">1 · Type de boule</div>
       <div class="btns">
-        <div class="btn" id="btn-tir" onclick="pick('type','tir')">🎯 Tirée</div>
-        <div class="btn" id="btn-point" onclick="pick('type','point')">🎪 Pointée</div>
+        <div class="btn" id="btn-tir" onclick="pick('type','tir')">Tirée</div>
+        <div class="btn" id="btn-point" onclick="pick('type','point')">Pointée</div>
       </div>
     </div>
 
     <div class="step-block dim" id="blk-contact">
       <div class="step-lbl">2 · Contact</div>
       <div class="btns">
-        <div class="btn" id="btn-touche" onclick="pick('contact','touche')">✓ Touchée</div>
-        <div class="btn" id="btn-rate" onclick="pick('contact','rate')">✗ Ratée</div>
+        <div class="btn" id="btn-touche" onclick="pick('contact','touche')">Touchée</div>
+        <div class="btn" id="btn-rate" onclick="pick('contact','rate')">Ratée</div>
       </div>
     </div>
 
@@ -192,7 +191,7 @@
       <div class="btns">
         <div class="btn" id="btn-poussee" onclick="pick('effet','poussee')">Poussée</div>
         <div class="btn" id="btn-pale" onclick="pick('effet','pale')">Pâlée</div>
-        <div class="btn" id="btn-carreau" onclick="pick('effet','carreau')">Carreau sec</div>
+        <div class="btn" id="btn-carreau" onclick="pick('effet','carreau')">Carreau magueul</div>
       </div>
     </div>
 
@@ -203,7 +202,7 @@
         <div class="btn" id="btn-difficile" onclick="pick('presult','difficile')">Reprise difficile réussie</div>
         <div class="btn" id="btn-defendable" onclick="pick('presult','defendable')">Défendable</div>
         <div class="btn" id="btn-nul" onclick="pick('presult','nul')">Nul indéfendable</div>
-        <div class="btn" style="min-width:100%" id="btn-mer" onclick="pick('presult','mer')">À la mer 🌊</div>
+        <div class="btn" style="min-width:100%" id="btn-mer" onclick="pick('presult','mer')">À la mer</div>
       </div>
     </div>
 
@@ -224,13 +223,13 @@
   <div id="tab-stats" style="display:none">
     <div class="stats-grid">
       <div class="stat-card"><div class="stat-lbl">Total boules</div><div class="stat-val" id="s-total">0</div></div>
-      <div class="stat-card"><div class="stat-lbl">Carreaux secs</div><div class="stat-val" id="s-carreaux">0</div><div class="stat-sub" id="s-carreaux-p">—</div></div>
+      <div class="stat-card"><div class="stat-lbl">Carreaux magueuls</div><div class="stat-val" id="s-carreaux">0</div><div class="stat-sub" id="s-carreaux-p">—</div></div>
       <div class="stat-card"><div class="stat-lbl">Tirs</div><div class="stat-val" id="s-tirs">0</div><div class="stat-sub" id="s-tirs-p">—</div></div>
       <div class="stat-card"><div class="stat-lbl">Pointés</div><div class="stat-val" id="s-points">0</div><div class="stat-sub" id="s-points-p">—</div></div>
     </div>
 
     <div class="sec-title">Résultats des tirs</div>
-    <div class="prog-item"><div class="prog-row"><span>Carreau sec</span><span id="pt-carreau">0%</span></div><div class="prog-track"><div class="prog-fill" id="pb-carreau" style="background:#3dba78;width:0%"></div></div></div>
+    <div class="prog-item"><div class="prog-row"><span>Carreau magueul</span><span id="pt-carreau">0%</span></div><div class="prog-track"><div class="prog-fill" id="pb-carreau" style="background:#3dba78;width:0%"></div></div></div>
     <div class="prog-item"><div class="prog-row"><span>Pâlée</span><span id="pt-pale">0%</span></div><div class="prog-track"><div class="prog-fill" id="pb-pale" style="background:#f07840;width:0%"></div></div></div>
     <div class="prog-item"><div class="prog-row"><span>Poussée</span><span id="pt-poussee">0%</span></div><div class="prog-track"><div class="prog-fill" id="pb-poussee" style="background:#4a9eff;width:0%"></div></div></div>
     <div class="prog-item"><div class="prog-row"><span>Ratée</span><span id="pt-rate">0%</span></div><div class="prog-track"><div class="prog-fill" id="pb-rate" style="background:#f05050;width:0%"></div></div></div>
@@ -238,13 +237,13 @@
     <div class="sec-title">Pointés : résultats × techniques</div>
     <div id="crosstab"></div>
 
-    <button class="reset-btn" onclick="resetAll()">🗑 Réinitialiser toutes les données</button>
+    <button class="reset-btn" onclick="resetAll()">Réinitialiser toutes les données</button>
   </div>
 
   <!-- LOG -->
   <div id="tab-log" style="display:none">
     <div id="log-list"></div>
-    <button class="reset-btn" onclick="resetAll()">🗑 Réinitialiser toutes les données</button>
+    <button class="reset-btn" onclick="resetAll()">Réinitialiser toutes les données</button>
   </div>
 
 </div>
@@ -259,7 +258,7 @@ var cur = {};
 var LABELS = {
   tir:'Tir', point:'Pointé',
   touche:'Touchée', rate:'Ratée',
-  poussee:'Poussée', pale:'Pâlée', carreau:'Carreau sec',
+  poussee:'Poussée', pale:'Pâlée', carreau:'Carreau magueul',
   simple:'Reprise simple', difficile:'Reprise difficile', defendable:'Défendable',
   nul:'Nul indéfendable', mer:'À la mer',
   plombe:'Plombée', portee:'Portée', demi:'Demi-portée', roulette:'Roulette'
@@ -333,8 +332,8 @@ function confirmEntry() {
 
 function showFlash(e) {
   var msg = e.type==='tir'
-    ? ('🎯 ' + (e.contact==='rate' ? 'Ratée' : LABELS[e.effet]))
-    : ('🎪 ' + LABELS[e.presult] + ' · ' + LABELS[e.technique]);
+    ? (e.contact==='rate' ? 'Ratée' : LABELS[e.effet])
+    : (LABELS[e.presult] + ' · ' + LABELS[e.technique]);
   var bad = e.contact==='rate' || e.presult==='mer' || e.presult==='nul';
   var mid = e.presult==='defendable' || e.effet==='pale' || e.effet==='poussee';
   var el = document.getElementById('flash');
