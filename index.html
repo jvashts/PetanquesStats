@@ -124,6 +124,24 @@ body{display:flex;flex-direction:column}
 .chk-row{display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--border);border-radius:8px;margin-bottom:8px;cursor:pointer;background:var(--bg3)}
 .chk-row input{accent-color:var(--amber)}
 .view-hidden{display:none!important}
+.rules-part{margin-bottom:14px;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;background:var(--bg2)}
+.rules-toggle{width:100%;text-align:left;padding:12px 14px;background:var(--bg3);border:none;color:var(--text2);font-size:13px;font-weight:600;cursor:pointer}
+.rules-body{padding:14px;font-size:13px;line-height:1.55;color:var(--text2);border-top:1px solid var(--border)}
+.rules-body h4{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);margin:14px 0 6px}
+.rules-body h4:first-child{margin-top:0}
+.rules-body p{margin-bottom:10px}
+.rules-body ul{margin:0 0 10px 16px}
+.rules-body strong{color:var(--text)}
+.mene-hint{font-size:11px;color:var(--text3);margin-top:6px;line-height:1.4}
+.joueur-hint{font-size:12px;color:var(--text3);margin-top:8px;line-height:1.45}
+.modal-btn-group{display:flex;gap:10px;margin:12px 0}
+.modal-btn{flex:1;padding:12px;border:1px solid var(--border);background:var(--bg3);color:var(--text2);border-radius:8px;cursor:pointer;font-size:13px;font-weight:500}
+.modal-btn.selected{background:var(--amber-bg);color:var(--amber);border-color:var(--amber-border)}
+.np-quick{border:1px dashed var(--border2);border-radius:var(--radius);padding:12px;margin-bottom:12px;background:var(--bg)}
+.np-quick-h{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;margin-bottom:8px}
+.session-badge-inline{font-size:10px;padding:3px 8px;border-radius:6px;font-weight:600;margin-right:8px;vertical-align:middle}
+.session-badge-inline.train{background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-border)}
+.session-badge-inline.match{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-border)}
   </style>
 </head>
 <body>
@@ -151,10 +169,13 @@ body{display:flex;flex-direction:column}
 <div class="content" id="content">
 
   <div id="view-home">
-    <button type="button" class="btn-primary" onclick="openNewPartieModal()">+ Nouvelle partie</button>
-    <div class="sec-title" style="margin-top:20px">Parties</div>
+    <p class="empty-note" id="home-hint-joueurs" style="display:none;margin-bottom:12px;padding:10px 12px;background:var(--blue-bg);border:1px solid var(--blue-border);border-radius:8px;color:var(--blue)">
+      Pour lancer une <strong>session</strong> (entraînement ou partie), tu peux créer des <strong>joueurs</strong> ici ou directement dans « Nouvelle session ». Sinon : onglet <strong>Joueurs</strong>.
+    </p>
+    <button type="button" class="btn-primary" onclick="openNewPartieModal()">+ Nouvelle session</button>
+    <div class="sec-title" style="margin-top:20px">Entraînements &amp; parties</div>
     <div id="party-list"></div>
-    <p class="no-data" id="party-list-empty" style="display:none">Aucune partie. Crée-en une pour commencer.</p>
+    <p class="no-data" id="party-list-empty" style="display:none">Aucune session. Crée-en une pour commencer.</p>
   </div>
 
   <div id="view-joueurs" class="view-hidden">
@@ -178,6 +199,13 @@ body{display:flex;flex-direction:column}
     <div class="filter-row view-hidden" id="stats-row-partie">
       <select class="filter-select" id="stats-partie-sel" onchange="renderStats()"></select>
     </div>
+    <div class="filter-row view-hidden" id="stats-row-kind">
+      <select class="filter-select" id="stats-kind-filter" onchange="renderStats()">
+        <option value="all">Tous (entraînements + parties)</option>
+        <option value="training">Entraînements seulement</option>
+        <option value="match">Parties compétitives seulement</option>
+      </select>
+    </div>
     <div id="stats-panel"></div>
     <div id="stats-per-joueur-wrap" class="view-hidden"></div>
     <button type="button" class="reset-btn" onclick="resetAllData()">Réinitialiser toutes les données</button>
@@ -189,13 +217,34 @@ body{display:flex;flex-direction:column}
   </div>
 
   <div id="view-party" class="view-hidden">
-    <div class="mene-bar">
-      <span>Mène en cours : <strong id="mene-num-d">1</strong></span>
-      <button type="button" class="btn-secondary" style="width:auto;margin:0;padding:8px 14px" onclick="nextMene()">Mène suivante</button>
+    <div class="rules-part">
+      <button type="button" class="rules-toggle" id="rules-toggle-part" onclick="toggleRulesPart()">Règles de la pétanque &amp; comment saisir ▾</button>
+      <div class="rules-body" id="rules-body-part" style="display:none">
+        <h4>Objectif</h4>
+        <p>En <strong>pétanque</strong>, deux équipes font rouler ou tirer des boules en acier le plus près possible du <strong>cochonnet</strong> (petite cible). Une <strong>partie</strong> dure jusqu’à 13 points (ou autre accord).</p>
+        <h4>Qu’est-ce qu’une mène ?</h4>
+        <p>Une <strong>mène</strong> (souvent appelée <strong>« fin »</strong>) va du lancer du cochonnet pour cette reprise jusqu’à ce que toutes les boules utiles aient été jouées et que les <strong>points soient comptés</strong> pour cette reprise. Ensuite on enchaîne une <strong>nouvelle mène</strong> (nouveau cochonnet, terrain réduit ou non selon les règles locales).</p>
+        <h4>Ordre de jeu : pas un tour fixe</h4>
+        <p>Contrairement à un jeu de cartes « chacun son tour » mécanique, <strong>qui joue quelle boule</strong> dépend de la situation : équipe menée ou menante, besoin de <strong>pointer</strong> ou de <strong>tirer</strong>, règles du <strong>pied sur la pastèque</strong>, composition des équipes, etc. L’ordre <strong>change d’une boule à l’autre</strong> — on ne peut pas le deviner à l’avance.</p>
+        <h4>Comment utiliser cette app</h4>
+        <ul>
+          <li><strong>Avant chaque boule</strong>, appuie sur la pastille du <strong>joueur qui lance vraiment cette boule</strong> (ce n’est pas un ordre automatique).</li>
+          <li>Les boules enregistrées dans la <strong>mène en cours</strong> sont toutes celles jouées pendant <strong>cette même fin</strong>, jusqu’à ce que tu appuies sur <strong>« Mène suivante »</strong> (nouvelle fin).</li>
+          <li>Tu peux enchaîner le même joueur plusieurs fois ou alterner : l’app suit la réalité du terrain.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="mene-bar" style="flex-direction:column;align-items:stretch;gap:8px">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+        <span>Mène en cours : <strong id="mene-num-d">1</strong></span>
+        <button type="button" class="btn-secondary" style="width:auto;margin:0;padding:8px 14px" onclick="nextMene()">Mène suivante</button>
+      </div>
+      <p class="mene-hint">Quand la fin est terminée et les points comptés pour ce cochonnet, passe à la mène suivante. Toutes les boules restent associées au bon joueur.</p>
     </div>
     <div class="step-block">
-      <div class="step-lbl">Joueur actif</div>
+      <div class="step-lbl">Qui joue cette boule ?</div>
       <div class="j-chip-wrap" id="j-chips"></div>
+      <p class="joueur-hint" id="joueur-hint-text">Choisis le joueur <strong>avant</strong> d’enregistrer — l’ordre n’est pas fixe d’une boule à l’autre.</p>
     </div>
     <div class="step-block" id="blk-type">
       <div class="step-lbl">1 · Type de boule</div>
@@ -247,14 +296,26 @@ body{display:flex;flex-direction:column}
 
 <div class="modal" id="modal-partie">
   <div class="modal-content">
-    <div class="modal-title">Nouvelle partie</div>
+    <div class="modal-title">Nouvelle session</div>
+    <div class="step-lbl" style="margin-bottom:8px">Type</div>
+    <div class="modal-btn-group">
+      <button type="button" class="modal-btn selected" id="np-type-training" onclick="selectNpSessionType('training')">Entraînement</button>
+      <button type="button" class="modal-btn" id="np-type-match" onclick="selectNpSessionType('match')">Partie</button>
+    </div>
     <label class="step-lbl">Nom (optionnel)</label>
-    <input type="text" class="modal-input" id="new-partie-label" placeholder="Ex. Finale club">
-    <div class="step-lbl" style="margin-bottom:8px">Joueurs participants</div>
+    <input type="text" class="modal-input" id="new-partie-label" placeholder="Ex. Tir au jack, Finale club…">
+    <div class="np-quick" id="np-quick-wrap">
+      <div class="np-quick-h">Créer un joueur maintenant</div>
+      <input type="text" class="modal-input" id="np-q-prenom" placeholder="Prénom *" style="margin-bottom:8px">
+      <input type="text" class="modal-input" id="np-q-nom" placeholder="Nom *" style="margin-bottom:8px">
+      <input type="text" class="modal-input" id="np-q-lic" placeholder="N° licence (optionnel)" style="margin-bottom:8px">
+      <button type="button" class="btn-secondary" style="margin-top:0" onclick="addQuickJoueurInPartieModal()">Ajouter le joueur et le cocher</button>
+    </div>
+    <div class="step-lbl" style="margin-bottom:8px;margin-top:12px">Joueurs participants</div>
     <div id="new-partie-joueurs"></div>
-    <p class="empty-note" id="new-partie-no-j" style="display:none">Ajoute d’abord des joueurs dans l’onglet Joueurs.</p>
+    <p class="empty-note" id="new-partie-no-j" style="display:none">Coche au moins un joueur ci-dessus, ou crée-en un avec le formulaire.</p>
     <div class="modal-actions">
-      <button type="button" class="modal-ok" onclick="createPartie()">Créer</button>
+      <button type="button" class="modal-ok" onclick="createPartie()">Créer la session</button>
       <button type="button" class="modal-cancel" onclick="closeModal('modal-partie')">Annuler</button>
     </div>
   </div>
@@ -294,7 +355,9 @@ function loadAll(){
   try{parties=JSON.parse(localStorage.getItem(K_P)||'[]');}catch(e){parties=[];}
   if(!Array.isArray(joueurs))joueurs=[];
   if(!Array.isArray(parties))parties=[];
+  parties.forEach(function(p){if(!p.sessionType)p.sessionType='match';});
 }
+function sessionTypeOf(p){return p&&p.sessionType==='training'?'training':'match';}
 function saveAll(){
   localStorage.setItem(K_J,JSON.stringify(joueurs));
   localStorage.setItem(K_P,JSON.stringify(parties));
@@ -313,7 +376,7 @@ function migrateLegacy(){
   var boules=entries.map(function(e){
     return{id:generateId(),joueurId:jid,type:e.type,contact:e.contact,effet:e.effet,presult:e.presult,technique:e.technique,ts:e.ts||Date.now()};
   });
-  parties.push({id:pid,date:new Date().toISOString().slice(0,10),label:'Parties précédentes',joueurs:[jid],lastJoueurId:jid,menes:[{id:mid,numero:1,boules:boules}]});
+  parties.push({id:pid,date:new Date().toISOString().slice(0,10),label:'Parties précédentes',sessionType:'match',joueurs:[jid],lastJoueurId:null,menes:[{id:mid,numero:1,boules:boules}]});
   saveAll();
   localStorage.removeItem('petanque_entries');
   localStorage.removeItem('petanque_sessions');
@@ -374,8 +437,9 @@ function openPartie(pid){
   currentPartieId=pid;
   var p=getPartie(pid);if(!p)return;
   showPartyUI(true);
-  document.getElementById('party-title-h').textContent=p.label||'Partie';
-  document.getElementById('party-sub-h').textContent=fmtDateFr(p.date)+' · '+(p.joueurs||[]).length+' joueur'+(p.joueurs.length>1?'s':'');
+  document.getElementById('party-title-h').textContent=p.label||(sessionTypeOf(p)==='training'?'Entraînement':'Partie');
+  var typ=sessionTypeOf(p)==='training'?'Entraînement':'Partie compétitive';
+  document.getElementById('party-sub-h').textContent=typ+' · '+fmtDateFr(p.date)+' · '+(p.joueurs||[]).length+' joueur'+(p.joueurs.length>1?'s':'');
   renderJChips(p);
   cur={};
   document.querySelectorAll('#view-party .btn').forEach(function(b){b.className='btn';});
@@ -402,6 +466,8 @@ function getCurrentMene(p){var ms=p.menes||[];return ms[ms.length-1];}
 function fmtDateFr(iso){if(!iso)return'';var p=iso.split('-');if(p.length===3)return p[2]+'/'+p[1]+'/'+p[0];return iso;}
 
 function renderHome(){
+  var hint=document.getElementById('home-hint-joueurs');
+  if(hint)hint.style.display=joueurs.length?'none':'block';
   var list=document.getElementById('party-list');
   var empty=document.getElementById('party-list-empty');
   list.innerHTML='';
@@ -413,7 +479,9 @@ function renderHome(){
     card.className='party-card';
     card.onclick=function(){openPartie(p.id);};
     var names=(p.joueurs||[]).map(function(id){var j=getJoueur(id);return j?(j.prenom+' '+j.nom).trim():'?';}).join(', ');
-    card.innerHTML='<div class="party-card-title">'+(p.label||'Partie')+'</div><div class="party-card-meta">'+fmtDateFr(p.date)+'</div><div class="party-card-meta" style="margin-top:4px">'+escapeHtml(names)+'</div><div class="party-card-row"><span style="font-size:12px;color:var(--text2)">'+countBoulesPartie(p)+' boule'+(countBoulesPartie(p)>1?'s':'')+'</span><button type="button" class="btn-danger" onclick="event.stopPropagation();deletePartieConfirm(\''+p.id+'\')">Supprimer</button></div>';
+    var badge=sessionTypeOf(p)==='training'?'<span class="session-badge-inline train">Entraînement</span>':'<span class="session-badge-inline match">Partie</span>';
+    var defLab=sessionTypeOf(p)==='training'?'Entraînement':'Partie';
+    card.innerHTML='<div class="party-card-title">'+badge+escapeHtml(p.label||defLab)+'</div><div class="party-card-meta">'+fmtDateFr(p.date)+'</div><div class="party-card-meta" style="margin-top:4px">'+escapeHtml(names)+'</div><div class="party-card-row"><span style="font-size:12px;color:var(--text2)">'+countBoulesPartie(p)+' boule'+(countBoulesPartie(p)>1?'s':'')+'</span><button type="button" class="btn-danger" onclick="event.stopPropagation();deletePartieConfirm(\''+p.id+'\')">Supprimer</button></div>';
     list.appendChild(card);
   });
 }
@@ -423,22 +491,70 @@ function escapeHtml(s){
   var d=document.createElement('div');d.textContent=s;return d.innerHTML;
 }
 
-function openNewPartieModal(){
+function selectNpSessionType(t){
+  document.getElementById('np-type-training').classList.toggle('selected',t==='training');
+  document.getElementById('np-type-match').classList.toggle('selected',t==='match');
+}
+window.selectNpSessionType=selectNpSessionType;
+
+function rebuildNpJoueurList(preservedChecked){
+  var prev=preservedChecked;
+  if(!prev){
+    prev=new Set();
+    document.querySelectorAll('.np-jchk').forEach(function(c){if(c.checked)prev.add(c.value);});
+  }
   var box=document.getElementById('new-partie-joueurs');
-  box.innerHTML='';
-  document.getElementById('new-partie-label').value='';
   var noj=document.getElementById('new-partie-no-j');
-  if(!joueurs.length){noj.style.display='block';document.getElementById('modal-partie').classList.add('show');return;}
-  noj.style.display='none';
+  box.innerHTML='';
   joueurs.forEach(function(j){
     var row=document.createElement('label');
     row.className='chk-row';
-    row.innerHTML='<input type="checkbox" value="'+j.id+'" class="np-jchk"> <span>'+escapeHtml((j.prenom+' '+j.nom).trim())+'</span>';
+    var chk=document.createElement('input');
+    chk.type='checkbox';
+    chk.value=j.id;
+    chk.className='np-jchk';
+    chk.checked=prev.has(j.id);
+    row.appendChild(chk);
+    row.appendChild(document.createTextNode(' '));
+    var sp=document.createElement('span');
+    sp.textContent=(j.prenom+' '+j.nom).trim();
+    row.appendChild(sp);
     box.appendChild(row);
   });
+  noj.style.display=joueurs.length?'none':'block';
+}
+
+function openNewPartieModal(){
+  selectNpSessionType('training');
+  document.getElementById('new-partie-label').value='';
+  document.getElementById('np-q-prenom').value='';
+  document.getElementById('np-q-nom').value='';
+  document.getElementById('np-q-lic').value='';
+  rebuildNpJoueurList(new Set());
   document.getElementById('modal-partie').classList.add('show');
 }
 window.openNewPartieModal=openNewPartieModal;
+
+function addQuickJoueurInPartieModal(){
+  var nom=document.getElementById('np-q-nom').value.trim();
+  var prenom=document.getElementById('np-q-prenom').value.trim();
+  if(!nom||!prenom){alert('Prénom et nom obligatoires.');return;}
+  var lic=document.getElementById('np-q-lic').value.trim();
+  var id=generateId();
+  var av=makeAvatar(prenom,nom);
+  joueurs.push({id:id,nom:nom,prenom:prenom,licence:lic,avatar:av});
+  saveAll();
+  var toCheck=new Set();
+  document.querySelectorAll('.np-jchk:checked').forEach(function(c){toCheck.add(c.value);});
+  toCheck.add(id);
+  rebuildNpJoueurList(toCheck);
+  document.getElementById('np-q-prenom').value='';
+  document.getElementById('np-q-nom').value='';
+  document.getElementById('np-q-lic').value='';
+  document.getElementById('new-partie-no-j').style.display='none';
+  renderJoueurs();
+}
+window.addQuickJoueurInPartieModal=addQuickJoueurInPartieModal;
 
 function closeModal(id){document.getElementById(id).classList.remove('show');}
 window.closeModal=closeModal;
@@ -446,12 +562,15 @@ window.closeModal=closeModal;
 function createPartie(){
   var ids=[];
   document.querySelectorAll('.np-jchk:checked').forEach(function(c){ids.push(c.value);});
-  if(!ids.length){alert('Sélectionne au moins un joueur.');return;}
+  if(!ids.length){alert('Sélectionne au moins un joueur, ou crée-en un avec le formulaire au-dessus.');return;}
   var label=document.getElementById('new-partie-label').value.trim();
   var d=new Date();
-  var def='Partie du '+String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear();
+  var dd=String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear();
+  var isTraining=document.getElementById('np-type-training').classList.contains('selected');
+  var sessionType=isTraining?'training':'match';
+  var def=isTraining?('Entraînement du '+dd):('Partie du '+dd);
   var pid=generateId(),mid=generateId();
-  parties.push({id:pid,date:d.toISOString().slice(0,10),label:label||def,joueurs:ids,lastJoueurId:ids[0],menes:[{id:mid,numero:1,boules:[]}]});
+  parties.push({id:pid,date:d.toISOString().slice(0,10),label:label||def,sessionType:sessionType,joueurs:ids,lastJoueurId:null,menes:[{id:mid,numero:1,boules:[]}]});
   saveAll();
   closeModal('modal-partie');
   renderHome();
@@ -460,7 +579,7 @@ function createPartie(){
 window.createPartie=createPartie;
 
 function deletePartieConfirm(pid){
-  if(!confirm('Supprimer cette partie et toutes ses boules ?'))return;
+  if(!confirm('Supprimer cette session et toutes ses boules ?'))return;
   parties=parties.filter(function(p){return p.id!==pid;});
   if(currentPartieId===pid)leavePartie();
   saveAll();
@@ -471,7 +590,7 @@ window.deletePartieConfirm=deletePartieConfirm;
 function renderJChips(p){
   var w=document.getElementById('j-chips');
   w.innerHTML='';
-  var active=p.lastJoueurId&&(p.joueurs||[]).indexOf(p.lastJoueurId)>=0?p.lastJoueurId:p.joueurs[0];
+  var active=p.lastJoueurId&&(p.joueurs||[]).indexOf(p.lastJoueurId)>=0?p.lastJoueurId:null;
   (p.joueurs||[]).forEach(function(jid){
     var j=getJoueur(jid);if(!j)return;
     var chip=document.createElement('button');
@@ -483,6 +602,19 @@ function renderJChips(p){
     chip.onclick=function(){selectJoueur(p.id,jid);};
     w.appendChild(chip);
   });
+  updateJoueurHint(p);
+  refreshConfirmBtn();
+}
+
+function updateJoueurHint(p){
+  var el=document.getElementById('joueur-hint-text');
+  if(!el)return;
+  if(p&&p.lastJoueurId&&(p.joueurs||[]).indexOf(p.lastJoueurId)>=0){
+    var j=getJoueur(p.lastJoueurId);
+    el.innerHTML=j?'Joueur pour cette boule : <strong>'+escapeHtml((j.prenom+' '+j.nom).trim())+'</strong>. Ensuite type tir / point.' : '';
+  }else{
+    el.innerHTML='Appuie sur une pastille : <strong>chaque boule</strong> doit être liée au joueur qui la joue (l’ordre change selon la mène).';
+  }
 }
 
 function selectJoueur(pid,jid){
@@ -499,11 +631,28 @@ function nextMene(){
   var nmid=generateId(),num=(last?last.numero:0)+1;
   ms.push({id:nmid,numero:num,boules:[]});
   p.menes=ms;
+  p.lastJoueurId=null;
   saveAll();
   document.getElementById('mene-num-d').textContent=String(num);
+  renderJChips(p);
   updateHeaderCount();
 }
 window.nextMene=nextMene;
+
+function toggleRulesPart(){
+  var b=document.getElementById('rules-body-part');
+  var btn=document.getElementById('rules-toggle-part');
+  if(!b)return;
+  var hidden=b.style.display==='none'||window.getComputedStyle(b).display==='none';
+  if(hidden){
+    b.style.display='block';
+    if(btn)btn.textContent='Règles de la pétanque & comment saisir ▴';
+  }else{
+    b.style.display='none';
+    if(btn)btn.textContent='Règles de la pétanque & comment saisir ▾';
+  }
+}
+window.toggleRulesPart=toggleRulesPart;
 
 function pick(step,val){
   if(step==='type'){
@@ -523,30 +672,41 @@ function pick(step,val){
 window.pick=pick;
 
 function setStepHidden(id,h){document.getElementById(id).classList.toggle('step-hidden',h);}
+function refreshConfirmBtn(){
+  var btn=document.getElementById('btn-confirm');
+  if(!btn||!currentPartieId)return;
+  var p=getPartie(currentPartieId);
+  var okJ=!!(p&&p.lastJoueurId&&(p.joueurs||[]).indexOf(p.lastJoueurId)>=0);
+  var isTir=cur.type==='tir',isPt=cur.type==='point';
+  var okForm=(isTir&&cur.contact==='rate')||(isTir&&cur.contact==='touche'&&cur.effet)||(isPt&&cur.presult&&cur.technique);
+  btn.classList.toggle('dim',!(okForm&&okJ));
+}
 function updateBlocks(){
   var isTir=cur.type==='tir',isPt=cur.type==='point';
   setStepHidden('blk-presult',!isPt);
   setStepHidden('blk-tech',!isPt||!cur.presult);
   setStepHidden('blk-contact',!isTir);
   setStepHidden('blk-effet',!(isTir&&cur.contact==='touche'));
-  var ok=(isTir&&cur.contact==='rate')||(isTir&&cur.contact==='touche'&&cur.effet)||(isPt&&cur.presult&&cur.technique);
-  document.getElementById('btn-confirm').classList.toggle('dim',!ok);
+  refreshConfirmBtn();
 }
 
 function confirmEntry(){
   var p=getPartie(currentPartieId);if(!p)return;
-  if(!p.lastJoueurId||p.joueurs.indexOf(p.lastJoueurId)<0){showFlashMsg('Choisis un joueur actif',true);return;}
+  if(!p.lastJoueurId||p.joueurs.indexOf(p.lastJoueurId)<0){showFlashMsg('Choisis le joueur pour cette boule',true);return;}
   var m=getCurrentMene(p);if(!m)return;
   var ok=(cur.type==='tir'&&cur.contact==='rate')||(cur.type==='tir'&&cur.contact==='touche'&&cur.effet)||(cur.type==='point'&&cur.presult&&cur.technique);
   if(!ok)return;
-  var b={id:generateId(),joueurId:p.lastJoueurId,type:cur.type,contact:cur.contact,effet:cur.effet,presult:cur.presult,technique:cur.technique,ts:Date.now()};
+  var jid=p.lastJoueurId;
+  var b={id:generateId(),joueurId:jid,type:cur.type,contact:cur.contact,effet:cur.effet,presult:cur.presult,technique:cur.technique,ts:Date.now()};
   m.boules=m.boules||[];m.boules.push(b);
+  p.lastJoueurId=null;
   saveAll();
   showFlashEntry(b);
   cur={};
   document.querySelectorAll('#view-party .btn').forEach(function(x){x.className='btn';});
   document.getElementById('btn-confirm').classList.add('dim');
   updateBlocks();
+  renderJChips(p);
   updateHeaderCount();
   document.getElementById('content').scrollTo({top:0,behavior:'smooth'});
 }
@@ -654,10 +814,19 @@ function deleteJoueur(jid){
 }
 window.deleteJoueur=deleteJoueur;
 
+function passesStatsKindFilter(partie){
+  var k=document.getElementById('stats-kind-filter');
+  if(!k)return true;
+  var v=k.value;
+  if(v==='all')return true;
+  return sessionTypeOf(partie)===v;
+}
+
 function onStatsScopeChange(){
   var sc=document.getElementById('stats-scope').value;
   document.getElementById('stats-row-joueur').classList.toggle('view-hidden',sc!=='joueur');
   document.getElementById('stats-row-partie').classList.toggle('view-hidden',sc!=='partie');
+  document.getElementById('stats-row-kind').classList.toggle('view-hidden',sc==='partie');
   var sj=document.getElementById('stats-joueur-sel');
   sj.innerHTML='<option value="">— Joueur —</option>';
   joueurs.forEach(function(j){
@@ -671,7 +840,7 @@ function onStatsScopeChange(){
   parties.slice().sort(function(a,b){return(b.date||'').localeCompare(a.date||'');}).forEach(function(p){
     var o=document.createElement('option');
     o.value=p.id;
-    o.textContent=p.label||p.date;
+    o.textContent=(sessionTypeOf(p)==='training'?'[Ent.] ':'[Partie] ')+(p.label||p.date);
     sp.appendChild(o);
   });
   renderStats();
@@ -729,11 +898,11 @@ function renderStats(){
   wrap.classList.add('view-hidden');
   wrap.innerHTML='';
   var entries;
-  if(sc==='global')entries=flattenBoules();
+  if(sc==='global')entries=flattenBoules(function(o){return passesStatsKindFilter(o.partie);});
   else if(sc==='joueur'){
     var jid=document.getElementById('stats-joueur-sel').value;
     if(!jid){panel.innerHTML='<p class="no-data">Choisis un joueur.</p>';return;}
-    entries=flattenBoules(function(o){return o.boule.joueurId===jid;});
+    entries=flattenBoules(function(o){return o.boule.joueurId===jid&&passesStatsKindFilter(o.partie);});
   }else{
     var pid=document.getElementById('stats-partie-sel').value;
     if(!pid){panel.innerHTML='<p class="no-data">Choisis une partie.</p>';return;}
@@ -774,7 +943,8 @@ function renderHisto(){
     var head=document.createElement('div');
     head.className='hist-head';
     head.onclick=function(){part.classList.toggle('open');};
-    head.innerHTML='<div class="hist-head-left"><div class="hist-title">'+escapeHtml(p.label||'Partie')+'</div><div class="hist-sub">'+fmtDateFr(p.date)+' · '+countBoulesPartie(p)+' boules</div></div><button type="button" class="btn-danger" onclick="event.stopPropagation();deletePartieConfirm(\''+p.id+'\')">Suppr. partie</button>';
+    var hst=(sessionTypeOf(p)==='training'?'Entraînement':'Partie')+' · ';
+    head.innerHTML='<div class="hist-head-left"><div class="hist-title">'+escapeHtml(p.label||(sessionTypeOf(p)==='training'?'Entraînement':'Partie'))+'</div><div class="hist-sub">'+hst+fmtDateFr(p.date)+' · '+countBoulesPartie(p)+' boules</div></div><button type="button" class="btn-danger" onclick="event.stopPropagation();deletePartieConfirm(\''+p.id+'\')">Suppr. session</button>';
     var body=document.createElement('div');
     body.className='hist-body';
     (p.menes||[]).slice().sort(function(a,b){return a.numero-b.numero;}).forEach(function(m){
