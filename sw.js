@@ -1,16 +1,23 @@
-const CACHE = 'petanque-v2';
-const FILES = [
-  './',
-  './index.html',
-  './styles.css',
-  './app.js',
-  './manifest.json',
-  './icons/icon-192.png',
-  './icons/icon-512.png'
-];
+const CACHE = 'petanque-v3';
+
+/** URLs absolues sous le scope du SW (indispensable sur GitHub Pages : /repo-name/...) */
+function asset(path) {
+  return new URL(path, self.registration.scope).href;
+}
 
 self.addEventListener('install', function (e) {
-  e.waitUntil(caches.open(CACHE).then(function (c) { return c.addAll(FILES); }));
+  e.waitUntil(
+    caches.open(CACHE).then(function (c) {
+      return c.addAll([
+        asset('index.html'),
+        asset('styles.css'),
+        asset('app.js'),
+        asset('manifest.json'),
+        asset('icons/icon-192.png'),
+        asset('icons/icon-512.png')
+      ]);
+    })
+  );
   self.skipWaiting();
 });
 
@@ -28,11 +35,15 @@ self.addEventListener('activate', function (e) {
 });
 
 self.addEventListener('fetch', function (e) {
+  var req = e.request;
   e.respondWith(
-    caches.match(e.request).then(function (r) {
-      return r || fetch(e.request).catch(function () {
-        return caches.match('./index.html');
-      });
+    caches.match(req).then(function (r) {
+      return (
+        r ||
+        fetch(req).catch(function () {
+          return caches.match(asset('index.html'));
+        })
+      );
     })
   );
 });

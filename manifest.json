@@ -3,6 +3,7 @@
   "short_name": "Boules",
   "description": "Suivi des performances en pétanque",
   "start_url": "./index.html",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#0f0f1a",
   "theme_color": "#1a1a2e",
