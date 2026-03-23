@@ -147,6 +147,18 @@ body{display:flex;flex-direction:column}
 .np-format-hint{font-size:12px;color:var(--text3);margin:6px 0 10px;line-height:1.4}
 .j-chip.j-chip-eq-a{box-shadow:0 0 0 3px var(--blue)}
 .j-chip.j-chip-eq-b{box-shadow:0 0 0 3px var(--amber)}
+.party-fold{margin-bottom:12px;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;background:var(--bg2)}
+.party-fold-head{width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;text-align:left;padding:12px 14px;background:var(--bg3);border:none;color:var(--text2);font-size:13px;font-weight:600;cursor:pointer}
+.party-fold-head .party-fold-summary{flex:1;min-width:0;line-height:1.35;color:var(--text)}
+.party-fold-chev{flex-shrink:0;font-size:12px;color:var(--text3)}
+.party-fold-body{padding:0 14px 14px;border-top:1px solid var(--border)}
+.party-fold-body .rules-part{margin-top:12px;margin-bottom:0}
+.party-fold-body .mene-bar{margin-bottom:0}
+.party-action-dock{position:fixed;left:0;right:0;bottom:0;z-index:200;display:flex;gap:10px;align-items:stretch;padding:10px 16px calc(12px + env(safe-area-inset-bottom));background:var(--bg2);border-top:1px solid var(--border);box-shadow:0 -8px 24px rgba(0,0,0,0.35)}
+.party-action-dock.view-hidden{display:none!important}
+.party-action-dock .undo-pick-btn{flex:0 1 42%;min-width:0;margin:0;padding:14px 10px;font-size:13px}
+.party-action-dock .confirm-btn{flex:1;min-width:0;margin:0;padding:14px 12px;font-size:15px}
+.content.has-party-dock{padding-bottom:calc(88px + env(safe-area-inset-bottom))}
   </style>
 </head>
 <body>
@@ -222,34 +234,45 @@ body{display:flex;flex-direction:column}
   </div>
 
   <div id="view-party" class="view-hidden">
-    <div class="rules-part">
-      <button type="button" class="rules-toggle" id="rules-toggle-part" onclick="toggleRulesPart()">Règles de la pétanque &amp; comment saisir ▾</button>
-      <div class="rules-body" id="rules-body-part" style="display:none">
-        <h4>Objectif</h4>
-        <p>En <strong>pétanque</strong>, deux équipes font rouler ou tirer des boules en acier le plus près possible du <strong>cochonnet</strong> (petite cible). Une <strong>partie</strong> dure jusqu’à 13 points (ou autre accord).</p>
-        <h4>Qu’est-ce qu’une mène ?</h4>
-        <p>Une <strong>mène</strong> (souvent appelée <strong>« fin »</strong>) va du lancer du cochonnet pour cette reprise jusqu’à ce que toutes les boules utiles aient été jouées et que les <strong>points soient comptés</strong> pour cette reprise. Ensuite on enchaîne une <strong>nouvelle mène</strong> (nouveau cochonnet, terrain réduit ou non selon les règles locales).</p>
-        <h4>Ordre de jeu : pas un tour fixe</h4>
-        <p>Contrairement à un jeu de cartes « chacun son tour » mécanique, <strong>qui joue quelle boule</strong> dépend de la situation : équipe menée ou menante, besoin de <strong>pointer</strong> ou de <strong>tirer</strong>, règles du <strong>pied sur la pastèque</strong>, composition des équipes, etc. L’ordre <strong>change d’une boule à l’autre</strong> — on ne peut pas le deviner à l’avance.</p>
-        <h4>Comment utiliser cette app</h4>
-        <ul>
-          <li><strong>Avant chaque boule</strong>, appuie sur la pastille du <strong>joueur qui lance vraiment cette boule</strong> (ce n’est pas un ordre automatique).</li>
-          <li>Les boules enregistrées dans la <strong>mène en cours</strong> sont toutes celles jouées pendant <strong>cette même fin</strong>, jusqu’à ce que tu appuies sur <strong>« Mène suivante »</strong> (nouvelle fin).</li>
-          <li>Tu peux enchaîner le même joueur plusieurs fois ou alterner : l’app suit la réalité du terrain.</li>
-        </ul>
+    <div class="party-fold">
+      <button type="button" class="party-fold-head" id="party-fold-head" onclick="togglePartyFold()">
+        <span class="party-fold-summary" id="party-fold-summary">—</span>
+        <span class="party-fold-chev" id="party-fold-chev">▾</span>
+      </button>
+      <div class="party-fold-body" id="party-fold-body" style="display:none">
+        <div class="rules-part">
+          <button type="button" class="rules-toggle" id="rules-toggle-part" onclick="toggleRulesPart()">Règles de la pétanque &amp; comment saisir ▾</button>
+          <div class="rules-body" id="rules-body-part" style="display:none">
+            <h4>Objectif</h4>
+            <p>En <strong>pétanque</strong>, deux équipes font rouler ou tirer des boules en acier le plus près possible du <strong>cochonnet</strong> (petite cible). Une <strong>partie</strong> dure jusqu’à 13 points (ou autre accord).</p>
+            <h4>Qu’est-ce qu’une mène ?</h4>
+            <p>Une <strong>mène</strong> (souvent appelée <strong>« fin »</strong>) va du lancer du cochonnet pour cette reprise jusqu’à ce que toutes les boules utiles aient été jouées et que les <strong>points soient comptés</strong> pour cette reprise. Ensuite on enchaîne une <strong>nouvelle mène</strong> (nouveau cochonnet, terrain réduit ou non selon les règles locales).</p>
+            <h4>Ordre de jeu : pas un tour fixe</h4>
+            <p>Contrairement à un jeu de cartes « chacun son tour » mécanique, <strong>qui joue quelle boule</strong> dépend de la situation : équipe menée ou menante, besoin de <strong>pointer</strong> ou de <strong>tirer</strong>, règles du <strong>pied sur la pastèque</strong>, composition des équipes, etc. L’ordre <strong>change d’une boule à l’autre</strong> — on ne peut pas le deviner à l’avance.</p>
+            <h4>Équipes : doublette, triplette…</h4>
+            <p>En <strong>triplette</strong>, c’est bien <strong>3 joueurs contre 3</strong> (deux équipes de trois). En <strong>doublette</strong>, 2 contre 2 ; en <strong>tête à tête</strong>, 1 contre 1. Quand tu crées une session, choisis le <strong>format</strong>, <strong>nomme les équipes</strong> si tu veux, et affecte chaque joueur à <strong>l’équipe A ou B</strong>. En saisie des boules, un liseré <strong>bleu</strong> = équipe A, <strong>ambre</strong> = équipe B (mode libre = pas d’équipes).</p>
+            <h4>Comment utiliser cette app</h4>
+            <ul>
+              <li><strong>Avant chaque boule</strong>, appuie sur la pastille du <strong>joueur qui lance vraiment cette boule</strong> (ce n’est pas un ordre automatique).</li>
+              <li>Les boules enregistrées dans la <strong>mène en cours</strong> sont toutes celles jouées pendant <strong>cette même fin</strong>, jusqu’à ce que tu appuies sur <strong>« Mène suivante »</strong> (nouvelle fin).</li>
+              <li>Tu peux enchaîner le même joueur plusieurs fois ou alterner : l’app suit la réalité du terrain.</li>
+              <li>Le bandeau du haut (mène, règles, joueurs) se replie pour libérer l’écran ; <strong>Enregistrer</strong> reste en bas.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="mene-bar" style="flex-direction:column;align-items:stretch;gap:8px;margin-top:12px;margin-bottom:12px">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+            <span>Mène en cours : <strong id="mene-num-d">1</strong></span>
+            <button type="button" class="btn-secondary" style="width:auto;margin:0;padding:8px 14px" onclick="nextMene()">Mène suivante</button>
+          </div>
+          <p class="mene-hint">Quand la fin est terminée et les points comptés pour ce cochonnet, passe à la mène suivante. Toutes les boules restent associées au bon joueur.</p>
+        </div>
+        <div class="step-block" style="margin-bottom:0">
+          <div class="step-lbl">Qui joue cette boule ?</div>
+          <div class="j-chip-wrap" id="j-chips"></div>
+          <p class="joueur-hint" id="joueur-hint-text">Choisis le joueur <strong>avant</strong> d’enregistrer — l’ordre n’est pas fixe d’une boule à l’autre.</p>
+        </div>
       </div>
-    </div>
-    <div class="mene-bar" style="flex-direction:column;align-items:stretch;gap:8px">
-      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
-        <span>Mène en cours : <strong id="mene-num-d">1</strong></span>
-        <button type="button" class="btn-secondary" style="width:auto;margin:0;padding:8px 14px" onclick="nextMene()">Mène suivante</button>
-      </div>
-      <p class="mene-hint">Quand la fin est terminée et les points comptés pour ce cochonnet, passe à la mène suivante. Toutes les boules restent associées au bon joueur.</p>
-    </div>
-    <div class="step-block">
-      <div class="step-lbl">Qui joue cette boule ?</div>
-      <div class="j-chip-wrap" id="j-chips"></div>
-      <p class="joueur-hint" id="joueur-hint-text">Choisis le joueur <strong>avant</strong> d’enregistrer — l’ordre n’est pas fixe d’une boule à l’autre.</p>
     </div>
     <div class="step-block" id="blk-type">
       <div class="step-lbl">1 · Type de boule</div>
@@ -292,9 +315,13 @@ body{display:flex;flex-direction:column}
         <div class="btn" id="btn-roulette" onclick="pick('technique','roulette')">Roulette</div>
       </div>
     </div>
-    <button type="button" class="confirm-btn dim" id="btn-confirm" onclick="confirmEntry()">Enregistrer la boule</button>
   </div>
 
+</div>
+
+<div id="party-action-dock" class="party-action-dock view-hidden">
+  <button type="button" class="btn-secondary undo-pick-btn" id="btn-undo-pick" onclick="undoLastPick()">Annuler dernier choix</button>
+  <button type="button" class="confirm-btn dim" id="btn-confirm" onclick="confirmEntry()">Enregistrer la boule</button>
 </div>
 
 <div class="flash" id="flash"></div>
@@ -315,6 +342,11 @@ body{display:flex;flex-direction:column}
       <option value="triplette">Triplette — 3 vs 3</option>
     </select>
     <p class="np-format-hint" id="np-format-hint" style="display:none"></p>
+    <div id="np-equipe-names" class="view-hidden">
+      <label class="step-lbl">Noms des équipes (optionnel)</label>
+      <input type="text" class="modal-input" id="np-equipe-a-nom" placeholder="Équipe A — ex. Les Bleus" style="margin-bottom:8px">
+      <input type="text" class="modal-input" id="np-equipe-b-nom" placeholder="Équipe B — ex. Les Rouges" style="margin-bottom:0">
+    </div>
     <label class="step-lbl">Nom (optionnel)</label>
     <input type="text" class="modal-input" id="new-partie-label" placeholder="Ex. Tir au jack, Finale club…">
     <div class="np-quick" id="np-quick-wrap">
@@ -350,7 +382,7 @@ body{display:flex;flex-direction:column}
 <script>
 (function(){
 var K_J='petanque_joueurs',K_P='petanque_parties',K_MIG='petanque_migrated_legacy';
-var joueurs=[],parties=[],cur={},currentPartieId=null,editingJoueurId=null,mainTab='home';
+var joueurs=[],parties=[],cur={},currentPartieId=null,editingJoueurId=null,mainTab='home',partyFoldOpen=false;
 var LABELS={tir:'Tir',point:'Pointé',touche:'Touchée',rate:'Ratée',poussee:'Poussée',pale:'Palet',carreau:'Carreau magueul',simple:'Reprise simple',difficile:'Reprise difficile',defendable:'Défendable',nul:'Nul indéfendable',mer:'À la mer',plombe:'Plombée',portee:'Portée',demi:'Demi-portée',roulette:'Roulette'};
 var PRESULTS=['simple','difficile','defendable','nul','mer'];
 var PRESULT_CLS={simple:'rb-ok',difficile:'rb-ok',defendable:'rb-mid',nul:'rb-ko',mer:'rb-ko'};
@@ -373,6 +405,8 @@ function loadAll(){
     if(!p.format)p.format='libre';
     if(!Array.isArray(p.equipeA))p.equipeA=[];
     if(!Array.isArray(p.equipeB))p.equipeB=[];
+    if(typeof p.equipeANom!=='string')p.equipeANom='';
+    if(typeof p.equipeBNom!=='string')p.equipeBNom='';
   });
 }
 function sessionTypeOf(p){return p&&p.sessionType==='training'?'training':'match';}
@@ -381,6 +415,11 @@ function équipeOfJoueur(p,jid){
   if((p.equipeA||[]).indexOf(jid)>=0)return 'A';
   if((p.equipeB||[]).indexOf(jid)>=0)return 'B';
   return null;
+}
+function nomÉquipe(p,letter){
+  if(!p||p.format==='libre')return '';
+  if(letter==='A')return(p.equipeANom||'').trim()||'Équipe A';
+  return(p.equipeBNom||'').trim()||'Équipe B';
 }
 function saveAll(){
   localStorage.setItem(K_J,JSON.stringify(joueurs));
@@ -400,7 +439,7 @@ function migrateLegacy(){
   var boules=entries.map(function(e){
     return{id:generateId(),joueurId:jid,type:e.type,contact:e.contact,effet:e.effet,presult:e.presult,technique:e.technique,ts:e.ts||Date.now()};
   });
-  parties.push({id:pid,date:new Date().toISOString().slice(0,10),label:'Parties précédentes',sessionType:'match',format:'libre',equipeA:[],equipeB:[],joueurs:[jid],lastJoueurId:null,menes:[{id:mid,numero:1,boules:boules}]});
+  parties.push({id:pid,date:new Date().toISOString().slice(0,10),label:'Parties précédentes',sessionType:'match',format:'libre',equipeA:[],equipeB:[],equipeANom:'',equipeBNom:'',joueurs:[jid],lastJoueurId:null,menes:[{id:mid,numero:1,boules:boules}]});
   saveAll();
   localStorage.removeItem('petanque_entries');
   localStorage.removeItem('petanque_sessions');
@@ -455,6 +494,9 @@ function showPartyUI(on){
   document.getElementById('view-stats').classList.toggle('view-hidden',on||mainTab!=='stats');
   document.getElementById('view-histo').classList.toggle('view-hidden',on||mainTab!=='histo');
   document.getElementById('view-party').classList.toggle('view-hidden',!on);
+  var dock=document.getElementById('party-action-dock');
+  if(dock)dock.classList.toggle('view-hidden',!on);
+  document.getElementById('content').classList.toggle('has-party-dock',on);
 }
 
 function openPartie(pid){
@@ -467,10 +509,15 @@ function openPartie(pid){
   if(p.format==='triplette')bits.push('Triplette 3vs3');
   else if(p.format==='doublette')bits.push('Doublette 2vs2');
   else if(p.format==='tete_a_tete')bits.push('Tête à tête 1vs1');
+  if(p.format&&p.format!=='libre')bits.push(nomÉquipe(p,'A')+' vs '+nomÉquipe(p,'B'));
   bits.push(typ);
   bits.push(fmtDateFr(p.date));
   bits.push((p.joueurs||[]).length+' joueur'+((p.joueurs||[]).length>1?'s':''));
   document.getElementById('party-sub-h').textContent=bits.join(' · ');
+  partyFoldOpen=false;
+  var fb=document.getElementById('party-fold-body');
+  if(fb)fb.style.display='none';
+  var fcv=document.getElementById('party-fold-chev');if(fcv)fcv.textContent='▾';
   renderJChips(p);
   cur={};
   document.querySelectorAll('#view-party .btn').forEach(function(b){b.className='btn';});
@@ -478,6 +525,7 @@ function openPartie(pid){
   updateBlocks();
   var m=getCurrentMene(p);
   document.getElementById('mene-num-d').textContent=String(m.numero);
+  updatePartyFoldSummary();
   updateHeaderCount();
   document.getElementById('content').scrollTop=0;
 }
@@ -513,14 +561,14 @@ function renderHome(){
     if(p.format&&p.format!=='libre'&&(p.equipeA||[]).length+(p.equipeB||[]).length){
       var na=(p.equipeA||[]).map(function(id){var j=getJoueur(id);return j?(j.prenom+' '+j.nom).trim():'?';}).join(', ');
       var nb=(p.equipeB||[]).map(function(id){var j=getJoueur(id);return j?(j.prenom+' '+j.nom).trim():'?';}).join(', ');
-      names='Éq. A : '+na+' — Éq. B : '+nb;
+      names=nomÉquipe(p,'A')+' : '+na+' — '+nomÉquipe(p,'B')+' : '+nb;
     }else{
       names=(p.joueurs||[]).map(function(id){var j=getJoueur(id);return j?(j.prenom+' '+j.nom).trim():'?';}).join(', ');
     }
     var fmtChip='';
-    if(p.format==='triplette')fmtChip='<span class="session-badge-inline train">3vs3</span>';
-    else if(p.format==='doublette')fmtChip='<span class="session-badge-inline train">2vs2</span>';
-    else if(p.format==='tete_a_tete')fmtChip='<span class="session-badge-inline train">1vs1</span>';
+    if(p.format==='triplette')fmtChip='<span class="session-badge-inline match">Triplette</span>';
+    else if(p.format==='doublette')fmtChip='<span class="session-badge-inline match">Doublette</span>';
+    else if(p.format==='tete_a_tete')fmtChip='<span class="session-badge-inline match">1vs1</span>';
     var badge=sessionTypeOf(p)==='training'?'<span class="session-badge-inline train">Entraînement</span>':'<span class="session-badge-inline match">Partie</span>';
     var defLab=sessionTypeOf(p)==='training'?'Entraînement':'Partie';
     card.innerHTML='<div class="party-card-title">'+badge+fmtChip+escapeHtml(p.label||defLab)+'</div><div class="party-card-meta">'+fmtDateFr(p.date)+'</div><div class="party-card-meta" style="margin-top:4px">'+escapeHtml(names)+'</div><div class="party-card-row"><span style="font-size:12px;color:var(--text2)">'+countBoulesPartie(p)+' boule'+(countBoulesPartie(p)>1?'s':'')+'</span><button type="button" class="btn-danger" onclick="event.stopPropagation();deletePartieConfirm(\''+p.id+'\')">Supprimer</button></div>';
@@ -552,6 +600,8 @@ function onNpFormatChange(){
   var t=npFormatHintText(fmt);
   hint.textContent=t;
   hint.style.display=t?'block':'none';
+  var en=document.getElementById('np-equipe-names');
+  if(en)en.classList.toggle('view-hidden',fmt==='libre');
   var prev=new Set();
   document.querySelectorAll('.np-jchk:checked').forEach(function(c){prev.add(c.value);});
   var tm={};
@@ -604,7 +654,6 @@ function rebuildNpJoueurList(preservedChecked,preservedTeams){
     sel.style.display=fmt==='libre'?'none':'';
     sel.style.flex='0 0 auto';
     sel.style.minWidth='120px';
-    sel.onchange=function(){};
     wrap.appendChild(lab);
     wrap.appendChild(sel);
     box.appendChild(wrap);
@@ -630,7 +679,10 @@ function openNewPartieModal(){
   document.getElementById('np-q-lic').value='';
   document.getElementById('np-format-hint').textContent='';
   document.getElementById('np-format-hint').style.display='none';
+  document.getElementById('np-equipe-a-nom').value='';
+  document.getElementById('np-equipe-b-nom').value='';
   rebuildNpJoueurList(new Set(),{});
+  onNpFormatChange();
   document.getElementById('modal-partie').classList.add('show');
 }
 window.openNewPartieModal=openNewPartieModal;
@@ -701,6 +753,8 @@ function createPartie(){
   var def=isTraining?('Entraînement du '+dd):('Partie du '+dd);
   var pid=generateId(),mid=generateId();
   var joueurOrder=fmt==='libre'?ids:equipeA.concat(equipeB);
+  var ena=fmt==='libre'?'':document.getElementById('np-equipe-a-nom').value.trim();
+  var enb=fmt==='libre'?'':document.getElementById('np-equipe-b-nom').value.trim();
   parties.push({
     id:pid,
     date:d.toISOString().slice(0,10),
@@ -709,6 +763,8 @@ function createPartie(){
     format:fmt,
     equipeA:fmt==='libre'?[]:equipeA.slice(),
     equipeB:fmt==='libre'?[]:equipeB.slice(),
+    equipeANom:ena,
+    equipeBNom:enb,
     joueurs:joueurOrder,
     lastJoueurId:null,
     menes:[{id:mid,numero:1,boules:[]}]
@@ -1087,7 +1143,11 @@ function renderHisto(){
     var head=document.createElement('div');
     head.className='hist-head';
     head.onclick=function(){part.classList.toggle('open');};
-    var hst=(sessionTypeOf(p)==='training'?'Entraînement':'Partie')+' · ';
+    var hst='';
+    if(p.format==='triplette')hst='Triplette 3vs3 · ';
+    else if(p.format==='doublette')hst='Doublette · ';
+    else if(p.format==='tete_a_tete')hst='1vs1 · ';
+    hst+=(sessionTypeOf(p)==='training'?'Entraînement':'Partie')+' · ';
     head.innerHTML='<div class="hist-head-left"><div class="hist-title">'+escapeHtml(p.label||(sessionTypeOf(p)==='training'?'Entraînement':'Partie'))+'</div><div class="hist-sub">'+hst+fmtDateFr(p.date)+' · '+countBoulesPartie(p)+' boules</div></div><button type="button" class="btn-danger" onclick="event.stopPropagation();deletePartieConfirm(\''+p.id+'\')">Suppr. session</button>';
     var body=document.createElement('div');
     body.className='hist-body';
